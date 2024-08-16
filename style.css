@@ -391,4 +391,15 @@ nav .round{
     #contact{
         padding: 50px;
     }
+    .about-section{
+        padding-top: 120px;
+        width: 90%;
+    }
+    .bio h2{
+       text-align: center;
+    }
+    .bio{
+       text-align: center; 
+       width: 100%;
+    }
 }
