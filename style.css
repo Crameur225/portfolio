@@ -51,7 +51,7 @@ nav a:hover{
     color: #4e4c4c;
 }
 nav a:visited{
-    /* color: blue; */
+    color: blue;
 }
 h1{
     font-family: "Roboto", sans-serif;
@@ -401,5 +401,13 @@ nav .round{
     .bio{
        text-align: center; 
        width: 100%;
+    }
+}
+@media (max-width: 370px) {
+    .projet .description-project{
+        padding: 15px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 0.7em;
+        width: 100%;
     }
 }
