@@ -51,7 +51,7 @@ nav a:hover{
     color: #4e4c4c;
 }
 nav a:visited{
-    color: blue;
+    color: rgb(205, 94, 197);
 }
 h1{
     font-family: "Roboto", sans-serif;
@@ -370,6 +370,12 @@ nav .round{
     }
     nav{
         order: 1;
+    }
+    nav a{
+        text-transform: lowercase;
+    }
+    nav a:visited{
+        color: black;
     }
     h1{
         width: 80%;
