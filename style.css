@@ -323,6 +323,13 @@ nav .round{
     .bouton button{
         margin-left: 4em;
     }
+    .two{
+        width: 100%;
+    }
+    .two img{
+        height: 100%;
+        width: 100%;
+    }
 }
 @media (max-width: 1168px) {
     .triangle{
