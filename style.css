@@ -50,7 +50,7 @@ nav a:hover{
     transition: 0.3s;
     color: #4e4c4c;
 }
-nav a:visited{
+nav ul a:visited{
     color: rgb(205, 94, 197);
 }
 h1{
@@ -378,10 +378,10 @@ nav .round{
     nav{
         order: 1;
     }
-    nav a{
+    nav ul a{
         text-transform: lowercase;
     }
-    nav a:visited{
+    nav ul a:visited{
         color: black;
     }
     h1{
