@@ -98,15 +98,30 @@ tarifs :
 
 ```ts
 export const TARIFS = {
-  tjmMin: 180,  // euros / jour
-  tjmMax: 280,
+  tjmMinFcfa: 32_000,   // francs CFA / jour
+  tjmMaxFcfa: 48_000,
+  pariteFcfa: 655.957,  // 1 € = 655,957 F (parité fixe UEMOA)
   ...
 }
 ```
 
-Ajuste-les à ta réalité commerciale. Les charges en jours de `NATURES` et
-`MODULES` méritent aussi une relecture : ce sont des ordres de grandeur
-cohérents avec tes projets, à affiner avec ton expérience réelle.
+**Le franc CFA est la devise de référence**, pas l'euro : c'est le marché visé.
+L'euro est calculé à partir du franc et affiché en second, à titre indicatif
+pour un client hors zone franc. Tu n'as donc qu'une seule devise à régler.
+
+Le barème actuel donne, pour une finition « soignée » :
+
+| Demande | Charge | Budget |
+|---|---|---|
+| Site vitrine | 8–10 j | 295 000 – 440 000 F |
+| Vitrine + SEO | 11–14 j | 405 000 – 605 000 F |
+| API + auth + tests | 25–31 j | 895 000 – 1 345 000 F |
+| Application mobile complète | 73–90 j | 2 615 000 – 3 920 000 F |
+| Plateforme métier, délai serré | 90–110 j | 3 205 000 – 4 810 000 F |
+
+Les charges en jours de `NATURES` et `MODULES` méritent aussi une relecture :
+ce sont des ordres de grandeur cohérents avec tes projets, à affiner avec ton
+expérience réelle.
 
 ### 2. L'adresse du site
 
