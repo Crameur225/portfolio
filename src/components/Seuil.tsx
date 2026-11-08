@@ -83,7 +83,7 @@ export function Seuil() {
                 </figcaption>
               </figure>
 
-              <span className="tampon">8 systèmes livrés</span>
+              <span className="tampon">9 systèmes livrés</span>
 
               <div style={{ borderTop: '1px solid var(--trait)', paddingTop: 18, width: '100%' }}>
                 <p className="mono sourd" style={{ marginTop: 0, marginBottom: 10 }}>

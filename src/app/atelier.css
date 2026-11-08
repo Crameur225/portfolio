@@ -195,7 +195,7 @@ button {
   line-height: 0.86;
   letter-spacing: -0.015em;
   margin: 0;
-  font-size: clamp(2.9rem, 11.5vw, 10rem);
+  font-size: clamp(2.2rem, 11.5vw, 10rem);
 }
 
 .h2 {
@@ -758,12 +758,6 @@ button {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-@media (max-width: 859px) {
-  .index__statut {
-    display: none;
-  }
 }
 
 .index__fleche {
@@ -2041,4 +2035,355 @@ button {
   text-transform: none;
   letter-spacing: 0.04em;
   font-size: 9.5px;
+}
+
+/* ============================================================================
+   27. PETITS ÉCRANS — tout ce qui ne tient pas sans réglage explicite.
+   ---------------------------------------------------------------------------
+   Le reste de la feuille est déjà fluide (clamp, grilles à une colonne par
+   défaut). Cette section traite les cas que la fluidité ne règle pas seule :
+   le texte qui déborde de sa colonne, le zoom automatique d'iOS sur les
+   champs, les cibles tactiles trop petites, et les trois endroits où la mise
+   en page doit vraiment changer de forme — l'index des travaux, la
+   navigation, et le bordereau du devis.
+   ========================================================================== */
+
+/* -- 27.1 Rien ne dépasse de sa colonne ----------------------------------- */
+
+/* Garde-fou général : un média mal dimensionné ne peut pas élargir la page. */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+/* Noms de projets, de dépôts et valeurs techniques : des chaînes sans espace
+   (« loc-africa-mobile-and-web-agent-terrain ») qu'une colonne de 180 px ne
+   peut pas couper d'elle-même. */
+.index__nom,
+.famille__nom,
+.parcours__titre,
+.depots__nom,
+.noeud__nom,
+.noeud__detail,
+.opt__nom,
+.opt__detail,
+.recap__v,
+.fiche__accroche,
+.specs__v {
+  overflow-wrap: anywhere;
+}
+
+/* La valeur d'une spécification était en `flex: none` : elle poussait la
+   ligne au-delà de la fiche au lieu de passer à la ligne. */
+.specs__v {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  /* Sous cette largeur, clé et valeur ne tiennent plus de part et d'autre
+     d'un conducteur pointillé : on empile, et le pointillé perd son objet. */
+  .specs__l {
+    flex-wrap: wrap;
+    gap: 2px 8px;
+  }
+  .specs__pointille {
+    display: none;
+  }
+  .specs__v {
+    text-align: left;
+    flex-basis: 100%;
+  }
+}
+
+/* Le pied : « github.com/Crameur225 » à côté d'une étiquette de 74 px. */
+.pied__lien {
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Une note alignée à droite par `margin-left: auto` se retrouve collée au
+   bord opposé dès que la ligne passe à la ligne. */
+@media (max-width: 620px) {
+  .tete__note {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+/* -- 27.1 bis Ancres sous une barre collante ---------------------------- */
+
+/* Sans cette marge, « #travaux » amène le haut de la section exactement
+   sous la barre haute, qui le recouvre. La valeur suit la hauteur réelle de
+   la barre : une ligne seule sur grand écran, deux avec la bande d'onglets. */
+section[id],
+div[id^='fiche-'] {
+  scroll-margin-top: 94px;
+}
+
+@media (min-width: 1100px) {
+  section[id],
+  div[id^='fiche-'] {
+    scroll-margin-top: 64px;
+  }
+}
+
+/* -- 27.2 Champs de saisie : pas de zoom automatique sur iOS -------------- */
+
+/* Safari iOS zoome sur tout champ dont le texte fait moins de 16 px, et ne
+   dézoome pas ensuite : le visiteur reste coincé dans une page décalée, au
+   milieu du formulaire de devis. */
+@media (max-width: 640px) {
+  .champ input,
+  .champ textarea,
+  .champ select {
+    font-size: 16px;
+  }
+}
+
+/* -- 27.3 Cibles tactiles ------------------------------------------------- */
+
+/* Au doigt, 34 px de côté se rate une fois sur trois. */
+@media (pointer: coarse) {
+  .ico {
+    width: 40px;
+    height: 40px;
+  }
+  .btn {
+    padding: 14px 20px;
+  }
+  .btn--petit {
+    padding: 11px 15px;
+  }
+  .pied__lien {
+    padding: 12px 0;
+  }
+}
+
+/* -- 27.4 Index des travaux : deux rangées au lieu de six colonnes ------- */
+
+/* Au-dessous de 860 px la catégorie disparaît, mais le statut reste : c'est
+   le signal de confiance le plus fort de la ligne. Il passe sous le nom, et
+   le numéro comme la vignette occupent les deux rangées. */
+@media (max-width: 859px) {
+  .index__ligne {
+    grid-template-columns: 30px 52px minmax(0, 1fr) 14px;
+    grid-template-areas:
+      'num vig nom fle'
+      'num vig sta fle';
+    column-gap: 11px;
+    row-gap: 2px;
+    align-items: center;
+  }
+  .index__num {
+    grid-area: num;
+  }
+  .index__ligne .vignette {
+    grid-area: vig;
+  }
+  .index__nom {
+    grid-area: nom;
+    align-self: end;
+  }
+  .index__statut {
+    grid-area: sta;
+    align-self: start;
+    display: inline-flex;
+  }
+  .index__fleche {
+    grid-area: fle;
+    text-align: right;
+  }
+  /* Le décalage à l'ouverture volait 16 px à une ligne qui n'en a pas de
+     reste. */
+  .index__ligne:hover,
+  .index__ligne[data-ouvert='true'] {
+    padding-left: 9px;
+  }
+}
+
+/* -- 27.5 Barre haute : une bande d'onglets quand le rail est absent ----- */
+
+/* Le rail vertical n'apparaît qu'à 1100 px. En dessous il n'existait aucun
+   moyen d'atteindre « Travaux » ou « Devis » autrement qu'en déroulant toute
+   la page. La bande défile horizontalement, comme l'index d'un jeu de plans. */
+
+.barre__sigle {
+  display: none;
+  font-family: var(--titre);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--signal);
+  flex: none;
+}
+
+.barre__nav {
+  display: none;
+  gap: 1px;
+  padding: 0 var(--marge);
+  max-width: var(--max);
+  margin: 0 auto;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-top: 1px solid var(--trait);
+}
+
+.barre__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.barre__onglet {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 10px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--sourd);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.18s, border-color 0.18s;
+}
+
+.barre__onglet b {
+  font-weight: 500;
+  color: var(--trait-fort);
+}
+
+.barre__onglet[data-actif='true'] {
+  color: var(--encre);
+  border-bottom-color: var(--signal);
+}
+
+.barre__onglet[data-actif='true'] b {
+  color: var(--signal);
+}
+
+@media (max-width: 1099px) {
+  /* Le nom complet suivi de la section ne tient pas dans la ligne : le sigle
+     le remplace, et la bande d'onglets dit où l'on se trouve. */
+  .barre__ref {
+    display: none;
+  }
+  .barre__sigle,
+  .barre__nav {
+    display: flex;
+  }
+  .barre__in {
+    height: 50px;
+    gap: 10px;
+  }
+}
+
+/* -- 27.6 Devis : le chiffre reste visible pendant la saisie ------------- */
+
+/* Sous 1000 px le bordereau passe sous le formulaire : on cochait ses
+   modules sans jamais voir le budget bouger, ce qui était tout l'intérêt de
+   l'assistant. Cette barre collée en bas de l'écran le remet sous les yeux. */
+
+.devis__apercu {
+  display: none;
+}
+
+@media (max-width: 999px) {
+  .devis__apercu {
+    display: flex;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    flex-wrap: wrap;
+    /* Pleine largeur du volet : on annule son padding des deux côtés. */
+    margin: 20px calc(-1 * clamp(18px, 2.6vw, 32px)) calc(-1 * clamp(18px, 2.6vw, 32px));
+    padding: 11px clamp(18px, 2.6vw, 32px);
+    padding-bottom: calc(11px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--trait-fort);
+    background: var(--papier-3);
+    background: color-mix(in srgb, var(--papier-3) 93%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+.devis__apercu__l {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sourd);
+}
+
+.devis__apercu__v {
+  font-family: var(--titre);
+  font-size: clamp(1rem, 4.4vw, 1.3rem);
+  line-height: 1;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+
+/* -- 27.7 Fil des étapes : seule l'étape courante garde son nom ---------- */
+
+/* Cinq libellés dans 288 px donnaient cinq troncatures illisibles
+   (« PÉRIMÈ… », « RÉCAPI… »). Le numéro suffit pour les autres. */
+@media (max-width: 620px) {
+  .pas__e {
+    padding: 10px 5px;
+    letter-spacing: 0.06em;
+  }
+  .pas__nom {
+    display: none;
+  }
+  .pas__e[data-etat='courant'] {
+    flex: 4 1 auto;
+  }
+  .pas__e[data-etat='courant'] .pas__nom {
+    display: inline;
+  }
+}
+
+/* -- 27.8 Divers --------------------------------------------------------- */
+
+@media (max-width: 420px) {
+  /* Trois appels à l'action côte à côte se cassent mal : chacun prend la
+     ligne entière, le pouce ne peut pas se tromper. */
+  .seuil__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .seuil__actions .btn {
+    width: 100%;
+  }
+  /* Le récapitulatif : l'étiquette au-dessus de la valeur, pas à côté. */
+  .recap__k {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+  /* Le tampon penché dépassait du cadre sur les écrans les plus étroits. */
+  .tampon {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Écrans courts en paysage : on resserre les respirations verticales plutôt
+   que d'imposer trois écrans de défilement pour une seule section. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .section {
+    padding: 44px 0;
+  }
+  .seuil {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
 }

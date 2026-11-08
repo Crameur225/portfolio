@@ -301,7 +301,7 @@ export function Devis() {
                       onClick={() => i < pas && setPas(i)}
                       disabled={i > pas}
                     >
-                      {i + 1}. {p}
+                      {i + 1}.<span className="pas__nom">&nbsp;{p}</span>
                     </button>
                   ))}
                 </div>
@@ -562,6 +562,18 @@ export function Devis() {
                     </button>
                   )}
                 </div>
+
+                {e.valide ? (
+                  <div className="devis__apercu" aria-hidden>
+                    <span className="devis__apercu__l">
+                      {plage(e.joursMin, e.joursMax)} j ·{' '}
+                      {plage(e.semainesMin, e.semainesMax)} sem.
+                    </span>
+                    <span className="devis__apercu__v">
+                      {nombre(e.fcfaMin)} – {nombre(e.fcfaMax)} F
+                    </span>
+                  </div>
+                ) : null}
               </div>
 
               <Bordereau d={d} />

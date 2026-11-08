@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IDENTITE } from '@/data/contenu'
 
 export const SECTIONS = [
@@ -112,10 +112,30 @@ export function Barre() {
   const [theme, basculer] = useTheme()
   const actif = useSectionActive()
   const courante = SECTIONS.find((s) => s.id === actif) ?? SECTIONS[0]
+  const piste = useRef<HTMLElement>(null)
+
+  // La bande d'onglets mobile défile : on ramène l'onglet courant dans le
+  // champ de vision. `scrollIntoView` ferait défiler la page entière, alors
+  // qu'on ne veut déplacer que la bande — d'où le calcul à la main.
+  useEffect(() => {
+    const bande = piste.current
+    const onglet = bande?.querySelector<HTMLElement>('[data-actif="true"]')
+    if (!bande || !onglet) return
+    const marge = 14
+    const b = bande.getBoundingClientRect()
+    const o = onglet.getBoundingClientRect()
+    if (o.left < b.left + marge) bande.scrollLeft -= b.left + marge - o.left
+    else if (o.right > b.right - marge) bande.scrollLeft += o.right - b.right + marge
+  }, [actif])
 
   return (
     <div className="barre">
       <div className="barre__in">
+        {/* Sous 1100 px le nom complet ne tient pas dans la ligne : le sigle
+            le remplace et la bande d'onglets dit où l'on se trouve. */}
+        <span className="barre__sigle" aria-hidden>
+          AG
+        </span>
         <span className="barre__ref">
           {IDENTITE.nomComplet} — § {courante.num} {courante.nom}
         </span>
@@ -158,6 +178,22 @@ export function Barre() {
           </a>
         </div>
       </div>
+
+      {/* Navigation des petits écrans — le rail vertical n'existe qu'à
+          partir de 1100 px. Masquée en CSS au-delà. */}
+      <nav className="barre__nav" aria-label="Sections de la page" ref={piste}>
+        {SECTIONS.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="barre__onglet"
+            data-actif={actif === s.id}
+            aria-current={actif === s.id ? 'true' : undefined}
+          >
+            <b aria-hidden>{s.num}</b> {s.nom}
+          </a>
+        ))}
+      </nav>
     </div>
   )
 }
