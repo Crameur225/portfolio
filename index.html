@@ -1,133 +1,512 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GaelAgbe| developpeur front-end</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Materiel Icon -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-    <link rel="shortcut icon" href="./assets/icon/favicon.ico" type="image/x-icon">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agbé Yavo Gaël Borromée — Ingénieur logiciel, Abidjan</title>
+<meta name="description" content="Ingénieur logiciel à Abidjan. Neuf plateformes livrées en production : API Django à quatorze modules métier, place de marché à paiement sous séquestre, collecteur de télémétrie en Go.">
+<meta name="author" content="Agbé Yavo Gaël Borromée">
+<link rel="canonical" href="https://crameur225.github.io/portfolio/">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Agbé Yavo Gaël Borromée — Ingénieur logiciel">
+<meta property="og:description" content="Neuf plateformes livrées en production. Abidjan, Côte d’Ivoire.">
+<meta property="og:locale" content="fr_FR">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+
+<style>
+/* ============================================================================
+   Page d'attente — même registre que le portfolio : cyanotype, bleu de Prusse
+   et laiton, grille de calque, cotes de mesure et cartouche. Autonome :
+   aucun script, aucune dépendance hors les polices.
+   ========================================================================== */
+
+:root {
+  --papier: #dfe6ee;
+  --papier-2: #eef2f7;
+  --papier-3: #d1dae6;
+  --encre: #0d2136;
+  --encre-2: #26405a;
+  --sourd: #4a6480;
+  --trait: rgba(13, 33, 54, 0.17);
+  --trait-fort: rgba(13, 33, 54, 0.38);
+  --signal: #8a5a06;
+  --signal-pale: rgba(201, 138, 27, 0.16);
+  --grille: rgba(13, 33, 54, 0.07);
+  --prod: #14916b;
+
+  --titre: 'Anton', 'Arial Narrow', system-ui, sans-serif;
+  --corps: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+
+  --marge: clamp(18px, 5vw, 72px);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papier: #081726;
+    --papier-2: #0d2034;
+    --papier-3: #122a42;
+    --encre: #d9e6f2;
+    --encre-2: #a8c0d6;
+    --sourd: #6e8ba8;
+    --trait: rgba(217, 230, 242, 0.17);
+    --trait-fort: rgba(217, 230, 242, 0.36);
+    --signal: #e3a93c;
+    --signal-pale: rgba(227, 169, 60, 0.14);
+    --grille: rgba(140, 190, 235, 0.075);
+    --prod: #19a37a;
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--corps);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Grille de calque, fixe derrière le contenu. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, var(--grille) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grille) 1px, transparent 1px),
+    linear-gradient(to right, var(--grille) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grille) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+}
+
+.feuille {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-left: var(--marge);
+  padding-right: var(--marge);
+  padding-block: clamp(40px, 8vw, 96px) clamp(36px, 6vw, 72px);
+}
+
+a { color: inherit; }
+
+.mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.sourd { color: var(--sourd); }
+
+/* -- en-tête ------------------------------------------------------------- */
+
+.fil {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  color: var(--sourd);
+  margin-bottom: clamp(26px, 4vw, 44px);
+}
+
+.fil i {
+  width: 8px;
+  height: 8px;
+  background: var(--signal);
+  flex: none;
+  display: block;
+}
+
+h1 {
+  font-family: var(--titre);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(2.2rem, 10vw, 5.6rem);
+  line-height: 0.88;
+  letter-spacing: -0.015em;
+  margin: 0 0 clamp(22px, 3vw, 34px);
+  overflow-wrap: anywhere;
+}
+
+h1 em {
+  font-family: var(--serif);
+  font-style: italic;
+  text-transform: lowercase;
+  color: var(--signal);
+  letter-spacing: -0.02em;
+  font-size: 1.04em;
+}
+
+.manifeste {
+  font-size: clamp(1rem, 1.6vw, 1.18rem);
+  line-height: 1.66;
+  color: var(--encre-2);
+  max-width: 62ch;
+  margin: 0;
+}
+
+/* -- relevé chiffré ------------------------------------------------------ */
+
+.releve {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--trait);
+  border: 1px solid var(--trait);
+  margin: clamp(32px, 5vw, 56px) 0;
+}
+
+@media (min-width: 760px) {
+  .releve { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.case {
+  background: var(--papier);
+  padding: clamp(16px, 2.4vw, 26px);
+}
+
+/* Cote de mesure sous le chiffre, comme sur un plan. */
+.cote {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 13px;
+}
+
+.cote::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  border-left: 1px solid var(--signal);
+  border-right: 1px solid var(--signal);
+  border-bottom: 1px solid var(--signal);
+}
+
+.chiffre {
+  font-family: var(--titre);
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 0.88;
+  font-variant-numeric: tabular-nums;
+  display: block;
+}
+
+.case p { margin: 13px 0 0; }
+.case p + p { margin-top: 4px; font-size: 9.5px; letter-spacing: 0.1em; }
+
+/* -- titre de section ---------------------------------------------------- */
+
+.tete {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: clamp(20px, 3vw, 30px);
+  border-bottom: 1px solid var(--trait);
+}
+
+.tete span:first-child { color: var(--signal); font-weight: 600; }
+.tete span:nth-child(2) { letter-spacing: 0.22em; font-weight: 600; }
+.tete span:last-child { margin-left: auto; color: var(--sourd); font-size: 10px; }
+
+@media (max-width: 620px) {
+  .tete span:last-child { margin-left: 0; flex-basis: 100%; }
+}
+
+/* -- travaux ------------------------------------------------------------- */
+
+.travaux { border-top: 1px solid var(--trait); margin-bottom: clamp(36px, 5vw, 60px); }
+
+.ligne {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 4px 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--trait);
+}
+
+@media (min-width: 820px) {
+  .ligne {
+    grid-template-columns: 44px minmax(0, 1.1fr) minmax(0, 2fr) 150px;
+    gap: 20px;
+    align-items: baseline;
+  }
+}
+
+.ligne > .num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--sourd);
+  font-weight: 600;
+  grid-row: span 2;
+}
+
+@media (min-width: 820px) { .ligne > .num { grid-row: auto; } }
+
+.nom {
+  font-family: var(--titre);
+  text-transform: uppercase;
+  font-size: clamp(1.1rem, 2.3vw, 1.5rem);
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.quoi { font-size: 13.8px; line-height: 1.55; color: var(--encre-2); }
+
+.etat {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sourd);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.etat::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sourd);
+  flex: none;
+}
+
+.etat.prod::before { background: var(--prod); }
+.etat.actif::before { background: var(--signal); }
+
+/* -- cartouche de contact ------------------------------------------------ */
+
+.cartouche {
+  position: relative;
+  border: 1px solid var(--trait-fort);
+  background: var(--papier-2);
+  padding: clamp(20px, 3vw, 32px);
+  display: grid;
+  gap: clamp(20px, 3vw, 32px);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 820px) {
+  .cartouche { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+}
+
+.cartouche::before, .cartouche::after {
+  content: '';
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--signal);
+}
+.cartouche::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.cartouche::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.cartouche h2 {
+  font-family: var(--titre);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(1.5rem, 3.6vw, 2.3rem);
+  line-height: 0.96;
+  margin: 0 0 12px;
+}
+
+.cartouche p { margin: 0; color: var(--encre-2); font-size: 15px; max-width: 46ch; }
+
+.liens { display: grid; gap: 2px; align-content: start; }
+
+.lien {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--trait);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color 0.18s, padding-left 0.18s;
+}
+
+.lien b {
+  min-width: 72px;
+  flex: none;
+  color: var(--sourd);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 9.5px;
+}
+
+a.lien:hover { color: var(--signal); padding-left: 6px; }
+
+/* -- tampon et pied ------------------------------------------------------ */
+
+.tampon {
+  display: inline-block;
+  transform: rotate(-6deg);
+  border: 2px solid var(--signal);
+  color: var(--signal);
+  padding: 8px 14px 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  position: relative;
+  background: var(--signal-pale);
+  margin-bottom: 18px;
+}
+
+.tampon::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--signal);
+  opacity: 0.4;
+}
+
+footer {
+  margin-top: clamp(32px, 5vw, 54px);
+  padding-top: 16px;
+  border-top: 1px solid var(--trait);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--sourd);
+}
+
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+</style>
 </head>
+
 <body>
-    <!-- NAVIGATION -->
-        <nav> 
-            <div class="gael">
-                <div class="round"></div>
-                <a href="index.html"><h2>GaelAgbe</h2></a>
-            </div>
-            <ul>
-                <li><a href="index.html">Accueil</a></li>
-                <li><a href="#projets">Projets</a></li>
-                <li><a href="apropos.html">Apropos</a></li>
-            </ul>
-        </nav>
-        <!-- MAIN -->
-         <div class="projet">
-            <h2>Projet</h2>
-         </div>
-        <div class="main">
-            <div class="picture">
-               <img src="./assets/image/main-img.jpg" alt="image de mon écran montrant un code de scrapy">
-            </div>
-            <div class="bio">
-                <h1> <span class="hello">Hello !</span>  Je me nome Yavo Gael Borromee AGBE, je suis un developpeur front-end junior  <span class="material-symbols-outlined">
-                    developer_mode
-                    </span></h1>
-            </div>
-        </div>
-        <!-- SEPARATOR -->
-         <div class="separator"></div>
-         <!-- Mes Langages -->
-         <div class="bouton">
-            <p>Mes Languages</p>
-            <button>👊HTML&CSS</button>
-            <button>👍JavaScript</button>
-            <button>👍REACT JS</button>
-            <button>👍NODE JS</button>
-         </div>
-         <div class="separator"></div>
-           <!-- PRPOJECT -->
-         <div class="contener" id="projets">
-            <section class="projet">
-              <section class="section-first">
-                    <div class="nom-projet">
-                        <div>
-                            <h2>Projet HTML ET CSS</h2>
-                        <p>HTML&CSS</p>
-                        </div>
-                    </div>
-                    <div class="description-project">
-                        <p>Ici vous trouverez plus de 50 projets conçu en HTML et CSS, bootstrap, tailwindCSS</p>
-                        <a href="projetshtml&css.html">Voir Plus <span class="material-symbols-outlined">
-                            arrow_forward
-                            </span></a>
-                    </div>
-              </section>
-              <section class="two">
-                <img src="./assets/image/html&css.png" alt="">
-              </section>
-            </section>
-         </div>
-         <div class="separator"></div>
-         <div class="contener" id="projets">
-            <section class="projet">
-              <section class="section-first">
-                    <div class="nom-projet">
-                        <div class="round"></div>
-                        <div>
-                            <h2>PortFolio</h2>
-                        <p>HTML&CSS</p>
-                        </div>
-                    </div>
-                    <div class="description-project">
-                        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero ab, reprehenderit alias, labore excepturi</p>
-                        <a href="#">Voir Plus <span class="material-symbols-outlined">
-                            arrow_forward
-                            </span></a>
-                    </div>
-              </section>
-              <section class="two">
-                <img src="./assets/image/scrapy.png" alt="">
-              </section>
-            </section>
-         </div>
-         <div class="separator"></div>
-         <div class="contener">
-            <section class="projet">
-              <section class="section-first">
-                    <div class="nom-projet">
-                        <div class="round"></div>
-                        <div>
-                            <h2>PortFolio</h2>
-                        <p>HTML&CSS</p>
-                        </div>
-                    </div>
-                    <div class="description-project">
-                        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero ab, reprehenderit alias, labore excepturi</p>
-                        <a href="#">Voir Plus <span class="material-symbols-outlined">
-                            arrow_forward
-                            </span></a>
-                    </div>
-              </section>
-              <section class="two">
-                <img src="./assets/image/scrapy.png" alt="">
-              </section>
-            </section>
-         </div>
-         <div class="separator"></div>
-         <!-- CONTACT -->
-          <div class="contact-footer">
-         <div class="triangle"></div>
-         <h3>CONTACT</h3>
-         <div id="contact">
-          <p>Je suis disponible par email: <a href="mailto:gaelagbe@gmail.com" target="_blank">gaelagbe@gmail.com</a> et aussi par WhatSapp <a href="wa.me/0700029598" target="_blank">+2250700029598</a> </p>
-         </div>
-        </div>
-         <footer>
-            <p>
-            &copy; 2024 Gaël Agbé. Tous droits réservés.
-        </p>
-         </footer>
+<main class="feuille">
+
+  <p class="fil mono">
+    <i aria-hidden="true"></i>
+    <span>Agbé Yavo Gaël Borromée</span>
+    <span>·</span>
+    <span>Abidjan, Côte d’Ivoire · GMT</span>
+    <span>·</span>
+    <span>Ouvert aux missions et aux postes</span>
+  </p>
+
+  <h1>Je construis des <em>systèmes</em><br>qui tiennent en production</h1>
+
+  <p class="manifeste">
+    Neuf plateformes livrées — de l’API Django qui orchestre quatorze modules métier au
+    collecteur de télémétrie écrit en Go et installé en service système. Je ne livre pas une
+    maquette : je livre un schéma de données, des workflows à états explicites, une chaîne de
+    déploiement, et la documentation qui permet à quelqu’un d’autre de reprendre le code sans moi.
+  </p>
+
+  <section class="releve" aria-label="Relevé chiffré">
+    <div class="case">
+      <span class="cote"><span class="chiffre">56</span></span>
+      <p class="mono">dépôts</p>
+      <p class="mono sourd">depuis juin 2023</p>
+    </div>
+    <div class="case">
+      <span class="cote"><span class="chiffre">9</span></span>
+      <p class="mono">plateformes livrées</p>
+      <p class="mono sourd">web · mobile · infra</p>
+    </div>
+    <div class="case">
+      <span class="cote"><span class="chiffre">9</span></span>
+      <p class="mono">langages en production</p>
+      <p class="mono sourd">TS · Dart · Python · Go · Java</p>
+    </div>
+    <div class="case">
+      <span class="cote"><span class="chiffre">14</span></span>
+      <p class="mono">modules métier</p>
+      <p class="mono sourd">sur le seul projet LocAfrica</p>
+    </div>
+  </section>
+
+  <h2 class="tete mono">
+    <span>02</span><span>Index des travaux</span><span>Extrait — 5 sur 9</span>
+  </h2>
+
+  <div class="travaux">
+    <div class="ligne">
+      <span class="num">01</span>
+      <span class="nom">LocAfrica</span>
+      <span class="quoi">API Django pilotant toute la chaîne de location immobilière : quatorze modules métier, cinq rôles, trois applications Flutter sur la même API.</span>
+      <span class="etat prod">En production</span>
+    </div>
+    <div class="ligne">
+      <span class="num">02</span>
+      <span class="nom">Afriklance</span>
+      <span class="quoi">Place de marché freelance. Trente modules NestJS, paiement sous séquestre, mobile money Orange, MTN, Moov, Wave et CinetPay.</span>
+      <span class="etat prod">En production</span>
+    </div>
+    <div class="ligne">
+      <span class="num">03</span>
+      <span class="nom">OSIS db-monitor</span>
+      <span class="quoi">Télémétrie multi-SGBD écrite en Go : trois binaires, six moteurs couverts, installé en service système.</span>
+      <span class="etat prod">En production</span>
+    </div>
+    <div class="ligne">
+      <span class="num">04</span>
+      <span class="nom">Vizo</span>
+      <span class="quoi">Finances personnelles en Flutter — cinq langues, abonnements Google Play avec webhooks et droits d’accès vérifiés côté serveur.</span>
+      <span class="etat actif">Développement continu</span>
+    </div>
+    <div class="ligne">
+      <span class="num">05</span>
+      <span class="nom">WozoLab Waste</span>
+      <span class="quoi">Mission freelance menée seul de bout en bout : classification de déchets par IA, application mobile, API et back-office.</span>
+      <span class="etat">Livré</span>
+    </div>
+  </div>
+
+  <section class="cartouche">
+    <div>
+      <span class="tampon">9 systèmes livrés</span>
+      <h2>Parlons de votre système</h2>
+      <p>
+        Le portfolio complet — fiche technique et schéma d’architecture par projet, et un devis
+        chiffré en francs CFA obtenu en deux minutes — est en cours de mise en ligne. D’ici là,
+        décrivez-moi le problème : je vous dis comment je l’aborderais.
+      </p>
+    </div>
+
+    <div class="liens">
+      <a class="lien" href="https://github.com/Crameur225"><b>GitHub</b><span>github.com/Crameur225 ↗</span></a>
+      <a class="lien" href="mailto:gaelagbe@gmail.com"><b>E-mail</b><span>gaelagbe@gmail.com</span></a>
+      <span class="lien"><b>Lieu</b><span>Abidjan, Côte d’Ivoire · GMT</span></span>
+      <span class="lien"><b>Devis</b><span>Site vitrine à partir de 295 000 FCFA</span></span>
+    </div>
+  </section>
+
+  <footer class="mono">
+    <span>Réf. AG-00 · Page d’attente</span>
+    <span>Agbé Yavo Gaël Borromée — 2026</span>
+  </footer>
+
+</main>
 </body>
 </html>
