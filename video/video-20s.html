@@ -1,0 +1,1716 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Le plan qui tourne</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  /* ==========================================================================
+     Pupitre de rendu — une seule ambiance assumée : le cyanotype du portfolio.
+     Pas de thème clair : la page montre une vidéo sombre, l'inverser mentirait
+     sur ce qu'on est en train de régler. D'où les deux blocs de thème absents
+     et `color-scheme: dark` posé directement sur :root.
+     Mise en page : une colonne — en-tête, scène, pupitre, notes.
+     ========================================================================== */
+  :root {
+    --fond: #061320;
+    --papier: #081726;
+    --papier2: #0d2034;
+    --papier3: #122a42;
+    --trait: rgba(217, 230, 242, 0.17);
+    --traitf: rgba(217, 230, 242, 0.36);
+    --encre: #d9e6f2;
+    --encre2: #a8c0d6;
+    --sourd: #6e8ba8;
+    --laiton: #e3a93c;
+    --prod: #19a37a;
+
+    --titre: 'Anton', 'Arial Narrow', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+    --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --corps: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--encre);
+    font-family: var(--corps);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .app {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-block: clamp(22px, 4vw, 46px) clamp(40px, 6vw, 72px);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid;
+    gap: clamp(20px, 3vw, 30px);
+  }
+
+  .mono {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .sourd { color: var(--sourd); }
+
+  /* -- en-tête ------------------------------------------------------------ */
+
+  .tete { display: grid; gap: 10px; }
+
+  .tete__fil {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    color: var(--sourd);
+  }
+
+  .tete__fil i {
+    width: 8px; height: 8px;
+    background: var(--laiton);
+    flex: none;
+    transform: translateY(-1px);
+  }
+
+  h1 {
+    font-family: var(--titre);
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: clamp(2rem, 6.4vw, 3.4rem);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h1 em {
+    font-family: var(--serif);
+    font-style: italic;
+    text-transform: lowercase;
+    color: var(--laiton);
+    letter-spacing: -0.02em;
+  }
+
+  .tete p { margin: 0; max-width: 62ch; color: var(--encre2); }
+
+  /* -- scène -------------------------------------------------------------- */
+
+  .scene {
+    position: relative;
+    border: 1px solid var(--traitf);
+    background: var(--papier);
+    padding: 10px;
+  }
+
+  /* Marques de repérage, comme sur un tirage monté. */
+  .scene::before, .scene::after {
+    content: '';
+    position: absolute;
+    width: 11px; height: 11px;
+    border: 1px solid var(--laiton);
+  }
+  .scene::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .scene::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    background: var(--papier);
+  }
+
+  .scene__pied {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 9px;
+    margin-top: 9px;
+    border-top: 1px solid var(--trait);
+    color: var(--sourd);
+  }
+
+  /* -- pupitre ------------------------------------------------------------ */
+
+  .pupitre {
+    border: 1px solid var(--trait);
+    background: var(--papier2);
+    padding: clamp(14px, 2.4vw, 22px);
+    display: grid;
+    gap: 18px;
+  }
+
+  .reglages {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 680px) {
+    .reglages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .reglage { display: grid; gap: 7px; min-width: 0; }
+
+  .reglage > span {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sourd);
+  }
+
+  .segments { display: flex; border: 1px solid var(--trait); }
+
+  .segments button {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sourd);
+    background: none;
+    border: none;
+    border-right: 1px solid var(--trait);
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+  }
+
+  .segments button:last-child { border-right: none; }
+  .segments button:hover:not([aria-pressed='true']) { color: var(--encre); }
+
+  .segments button[aria-pressed='true'] {
+    background: var(--encre);
+    color: var(--papier);
+    font-weight: 700;
+  }
+
+  input[type='text'], select {
+    width: 100%;
+    padding: 10px 11px;
+    background: var(--papier);
+    border: 1px solid var(--trait);
+    color: var(--encre);
+    font-family: var(--mono);
+    font-size: 12px;
+    border-radius: 0;
+  }
+
+  input[type='text']:focus, select:focus { outline: none; border-color: var(--laiton); }
+
+  .bascule {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    padding: 9px 0;
+  }
+
+  .bascule input { width: 16px; height: 16px; accent-color: var(--laiton); flex: none; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border: 1px solid var(--encre);
+    background: var(--encre);
+    color: var(--papier);
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+  }
+
+  .btn:hover:not(:disabled) { background: var(--laiton); border-color: var(--laiton); color: #11202e; }
+  .btn:disabled { opacity: 0.36; cursor: not-allowed; }
+
+  .btn--creux { background: transparent; color: var(--encre); border-color: var(--traitf); }
+  .btn--creux:hover:not(:disabled) { background: transparent; color: var(--laiton); border-color: var(--laiton); }
+
+  .journal {
+    display: grid;
+    gap: 8px;
+    border-top: 1px solid var(--trait);
+    padding-top: 14px;
+  }
+
+  .journal__l {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--encre2);
+    min-height: 1.6em;
+  }
+
+  .journal__l b { color: var(--laiton); font-weight: 700; }
+
+  .jauge { height: 3px; background: var(--papier3); overflow: hidden; }
+  .jauge > i { display: block; height: 100%; width: 0; background: var(--laiton); transition: width 0.1s linear; }
+
+  /* -- notes -------------------------------------------------------------- */
+
+  .notes {
+    display: grid;
+    gap: 1px;
+    background: var(--trait);
+    border: 1px solid var(--trait);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 760px) {
+    .notes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .note { background: var(--papier2); padding: clamp(14px, 2vw, 20px); min-width: 0; }
+
+  .note h2 {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--laiton);
+    margin: 0 0 9px;
+    font-weight: 700;
+  }
+
+  .note p { margin: 0; font-size: 13.4px; line-height: 1.6; color: var(--encre2); }
+  .note p + p { margin-top: 8px; }
+  .note code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--encre);
+    background: var(--papier);
+    padding: 1px 5px;
+    overflow-wrap: anywhere;
+  }
+
+  :focus-visible { outline: 2px solid var(--laiton); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jauge > i { transition: none; }
+  }
+</style>
+
+<div class="app">
+
+  <header class="tete">
+    <p class="tete__fil mono"><i aria-hidden="true"></i><span>Réf. AG-00</span><span>·</span><span>Bobine 20 s</span><span>·</span><span>1920×1080 / 1080×1920 · 60 i/s</span></p>
+    <h1>Le plan qui <em>tourne</em></h1>
+    <p>Un plan technique au cyanotype se trace, puis s'anime : les cadres se remplissent, les cotes tombent, le compteur monte. Lance la lecture pour la voir, puis exporte le fichier vidéo.</p>
+  </header>
+
+  <section class="scene">
+    <canvas id="toile" width="1920" height="1080" aria-label="Aperçu de la vidéo de 20 secondes"></canvas>
+    <div class="scene__pied mono">
+      <span id="horloge">00:00 / 00:20</span>
+      <span id="format">16:9 · 1920×1080</span>
+    </div>
+  </section>
+
+  <section class="pupitre">
+    <div class="reglages">
+
+      <label class="reglage">
+        <span>Format</span>
+        <span class="segments" id="segFormat" role="group" aria-label="Format">
+          <button type="button" data-f="16x9" aria-pressed="true">16:9 — site, LinkedIn</button>
+          <button type="button" data-f="9x16" aria-pressed="false">9:16 — WhatsApp, TikTok</button>
+        </span>
+      </label>
+
+      <div class="reglage">
+        <span>Débit d'encodage</span>
+        <select id="qualite">
+          <option value="14000000">Haute — 14 Mb/s (≈ 35 Mo)</option>
+          <option value="7000000" selected>Réseau — 7 Mb/s (≈ 18 Mo)</option>
+          <option value="3500000">Légère — 3,5 Mb/s (≈ 9 Mo)</option>
+        </select>
+      </div>
+
+      <div class="reglage">
+        <label for="url"><span>Adresse du dernier plan</span></label>
+        <input type="text" id="url" value="github.com/Crameur225" spellcheck="false" autocomplete="off">
+      </div>
+
+      <div class="reglage">
+        <span>Sous-titres incrustés</span>
+        <label class="bascule" for="st">
+          <input type="checkbox" id="st" checked>
+          <span>Graver la voix-off à l'image</span>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="lire" disabled>Lire les 20 secondes</button>
+      <button type="button" class="btn btn--creux" id="exporter" disabled>Exporter la vidéo</button>
+    </div>
+
+    <div class="journal">
+      <p class="journal__l" id="etat">Chargement des polices…</p>
+      <div class="jauge" aria-hidden="true"><i id="jauge"></i></div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <div class="note">
+      <h2>La vidéo est muette</h2>
+      <p>Aucun son n'est généré ici. Les sous-titres sont gravés à l'image pour que la vidéo se comprenne sans le son — c'est ainsi que la majorité des vues se font sur mobile.</p>
+      <p>Pour ajouter la voix-off et la musique, le script minuté est dans <code>PROMPT_MOTION_DESIGN_PORTFOLIO_20S.md</code>.</p>
+    </div>
+    <div class="note">
+      <h2>Les chiffres sont les vrais</h2>
+      <p>Les montants du quatrième plan sortent du barème réel : site vitrine soigné à 295 000 F, puis SEO, comptes et tests ajoutés un par un jusqu'à 775 000 – 1 160 000 FCFA.</p>
+      <p>Si tu changes tes taux, refais ce plan plutôt que de laisser un chiffre périmé.</p>
+    </div>
+    <div class="note">
+      <h2>L'adresse du dernier plan</h2>
+      <p>Le champ ci-dessus se grave sur le cartouche final. Mets-y ton domaine dès que le site est déployé, puis réexporte.</p>
+      <p>Chrome donne un <code>.mp4</code> ; les autres navigateurs un <code>.webm</code>, à convertir avant de poster sur WhatsApp.</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================================
+   LE PLAN QUI TOURNE — 20 s, rendu sur canvas, exporté par MediaRecorder.
+   ---------------------------------------------------------------------------
+   Tout est dessiné en fonction du temps `t` en secondes : une même valeur de t
+   donne toujours exactement la même image. C'est ce qui rend l'export
+   reproductible, et ce qui permet d'afficher une image d'arrêt au chargement
+   sans avoir à jouer la séquence.
+
+   Arc : doute (0-4) → preuve (4-9) → étendue (9-14) → prix (14-18) → signature.
+   ========================================================================== */
+
+const FPS = 60;
+const DUREE = 20;
+
+const CV = document.getElementById('toile');
+const ctx = CV.getContext('2d');
+
+/* --- registre chromatique : les jetons du portfolio ---------------------- */
+
+const C = {
+  fond:   '#081726',
+  fond2:  '#0d2034',
+  cadre:  '#122a42',
+  trait:  'rgba(217,230,242,0.19)',
+  traitF: 'rgba(217,230,242,0.42)',
+  papier: '#dfe6ee',
+  encre2: '#a8c0d6',
+  sourd:  '#7691ad',
+  laiton: '#e3a93c',
+  prod:   '#19a37a',
+  grille: 'rgba(140,190,235,0.085)'
+};
+
+const F_TITRE = '"Anton", "Arial Narrow", sans-serif';
+const F_MONO  = '"JetBrains Mono", ui-monospace, monospace';
+const F_SERIF = '"Instrument Serif", Georgia, serif';
+
+/* --- outils ------------------------------------------------------------- */
+
+const bride = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+/** Avancement de `t` dans l'intervalle [a, b]. */
+const seg = (t, a, b) => bride((t - a) / (b - a));
+/** Sortie douce — tout ce qui se trace l'utilise. */
+const e3 = (p) => 1 - Math.pow(1 - bride(p), 3);
+/** Entrée puis sortie : l'enveloppe d'opacité d'un plan. */
+const env = (t, a, b, c, d) => Math.min(seg(t, a, b), 1 - seg(t, c, d));
+const entre = (a, b, p) => a + (b - a) * bride(p);
+
+/** Espace fine insécable entre les milliers, comme sur le site. */
+function espace(n) {
+  return Math.round(n).toLocaleString('fr-FR').replace(/[\s  ]/g, ' ');
+}
+
+function police(famille, taille, graisse) {
+  ctx.font = (graisse ? graisse + ' ' : '') + taille + 'px ' + famille;
+}
+
+function trait(x1, y1, x2, y2) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
+/** Segment qui se trace de son début vers sa fin. */
+function ligne(x1, y1, x2, y2, p, couleur, epais) {
+  p = e3(p);
+  if (p <= 0.001) return;
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = epais || 2;
+  trait(x1, y1, x1 + (x2 - x1) * p, y1 + (y2 - y1) * p);
+}
+
+/** Rectangle qui se trace le long de son périmètre, dans le sens horaire. */
+function cadre(x, y, w, h, p, couleur, epais) {
+  let reste = e3(p) * 2 * (w + h);
+  if (reste <= 0.001) return;
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = epais || 2;
+  const part = (ax, ay, bx, by, lg) => {
+    if (reste <= 0) return;
+    const q = Math.min(1, reste / lg);
+    reste -= lg;
+    trait(ax, ay, ax + (bx - ax) * q, ay + (by - ay) * q);
+  };
+  part(x, y, x + w, y, w);
+  part(x + w, y, x + w, y + h, h);
+  part(x + w, y + h, x, y + h, w);
+  part(x, y + h, x, y, h);
+}
+
+function texte(t, x, y, famille, taille, couleur, align, alpha, espacement, graisse) {
+  if (alpha !== undefined && alpha <= 0.001) return;
+  ctx.save();
+  if (alpha !== undefined) ctx.globalAlpha *= alpha;
+  police(famille, taille, graisse);
+  ctx.letterSpacing = (espacement || 0) + 'px';
+  ctx.fillStyle = couleur;
+  ctx.textAlign = align || 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(t, x, y);
+  ctx.restore();
+}
+
+/** Largeur d'une chaîne, avec le même interlettrage que l'affichage. */
+function largeur(t, famille, taille, espacement, graisse) {
+  ctx.save();
+  police(famille, taille, graisse);
+  ctx.letterSpacing = (espacement || 0) + 'px';
+  const l = ctx.measureText(t).width;
+  ctx.restore();
+  return l;
+}
+
+const mono = (t, x, y, taille, couleur, align, alpha, esp) =>
+  texte(t, x, y, F_MONO, taille, couleur, align, alpha, esp === undefined ? taille * 0.14 : esp, '500');
+
+/** Cote de mesure : la ligne part du centre, les tirets tombent à la fin. */
+function cote(x1, x2, y, etiquette, p) {
+  if (p <= 0.001) return;
+  const q = e3(p);
+  const cx = (x1 + x2) / 2;
+  const demi = ((x2 - x1) / 2) * q;
+  ctx.save();
+  ctx.strokeStyle = C.laiton;
+  ctx.lineWidth = 2;
+  trait(cx - demi, y, cx + demi, y);
+  if (q > 0.9) {
+    const r = seg(q, 0.9, 1);
+    trait(x1, y - 11 * r, x1, y + 11 * r);
+    trait(x2, y - 11 * r, x2, y + 11 * r);
+  }
+  ctx.restore();
+  if (etiquette) mono(etiquette, cx, y - 15, 21, C.laiton, 'center', seg(p, 0.55, 1), 3);
+}
+
+/** Pastille d'état, comme celles de l'index des travaux. */
+function pastille(x, y, t, couleur, p, pointe) {
+  if (p <= 0.001) return;
+  const lg = largeur(t, F_MONO, 19, 2.6, '500') + 30 + (pointe ? 16 : 0);
+  const h = 34;
+  ctx.save();
+  ctx.globalAlpha *= bride(p);
+  ctx.fillStyle = C.fond2;
+  ctx.fillRect(x, y, lg, h);
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, lg, h);
+  if (pointe) {
+    ctx.fillStyle = couleur;
+    ctx.beginPath();
+    ctx.arc(x + 17, y + h / 2, 5, 0, 6.2832);
+    ctx.fill();
+  }
+  ctx.restore();
+  mono(t, x + 15 + (pointe ? 16 : 0), y + 23, 19, couleur, 'left', bride(p), 2.6);
+}
+
+/* --- mise en page : une pour chaque format ------------------------------ */
+
+const etat = {
+  format: '16x9',
+  soustitres: true,
+  url: 'github.com/Crameur225',
+  qualite: 7000000,
+  lecture: false,
+  export: false
+};
+
+function plan() {
+  const vert = etat.format === '9x16';
+  const W = CV.width;
+  const H = CV.height;
+  if (vert) {
+    const m = 64;
+    return {
+      vert: true, W: W, H: H, m: m,
+      scene: { x: m, y: 690, w: W - 2 * m, h: 700 },
+      cx: m, cy: 430, ct: 96, cl: 98,          // carte de titre
+      cw: W - 2 * m,                            // largeur disponible du titre
+      sy: 532, st: 25,                          // sous-ligne
+      cart: { x: m, y: 1500, w: 356, h: 126 },  // cartouche de feuille
+      soutY: 1744, soutT: 25, soutL: 34
+    };
+  }
+  const m = 104;
+  return {
+    vert: false, W: W, H: H, m: m,
+    scene: { x: 600, y: 150, w: W - 600 - m, h: 700 },
+    cx: m, cy: 356, ct: 106, cl: 108,
+    cw: 600 - m - 48,                           // la colonne de gauche, pas plus
+    sy: 452, st: 25,
+    cart: { x: m, y: 836, w: 372, h: 132 },
+    soutY: 1022, soutT: 25, soutL: 34
+  };
+}
+
+/* --- carte de titre : révélation par volet ------------------------------ */
+
+function carte(L, lignes, sousLigne, p, alpha, cwMax) {
+  if (p <= 0.001) return;
+  const dispo = cwMax || L.cw;
+
+  /* Toutes les lignes prennent la même taille, calée sur la plus longue :
+     des corps différents d'une ligne à l'autre se verraient tout de suite.
+     Sans cela le titre passait par-dessus le schéma. */
+  let tt = L.ct;
+  let large = 0;
+  lignes.forEach(function (x) { large = Math.max(large, largeur(x, F_TITRE, L.ct, 0)); });
+  if (large > dispo) tt = Math.max(34, L.ct * (dispo / large));
+  const cl = L.cl * (tt / L.ct);
+
+  ctx.save();
+  ctx.globalAlpha *= bride(alpha === undefined ? 1 : alpha);
+  lignes.forEach(function (x, i) {
+    const pi = seg(p, i * 0.12, i * 0.12 + 0.48);
+    if (pi <= 0.001) return;
+    const y = L.cy + i * cl;
+    const lg = largeur(x, F_TITRE, tt, 0);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(L.cx - 6, y - tt, lg * e3(pi) + 12, tt * 1.35);
+    ctx.clip();
+    texte(x, L.cx, y, F_TITRE, tt, C.papier, 'left');
+    ctx.restore();
+  });
+
+  if (sousLigne) {
+    const ps = seg(p, 0.5, 0.95);
+    const y = L.cy + (lignes.length - 1) * cl + 96 * (tt / L.ct);
+    let ts = L.st;
+    while (largeur(sousLigne, F_MONO, ts, ts * 0.14, '500') > dispo && ts > 13) ts -= 1;
+    ligne(L.cx, y - ts - 16, L.cx + 86, y - ts - 16, ps, C.laiton, 3);
+    mono(sousLigne, L.cx, y, ts, C.laiton, 'left', ps, ts * 0.14);
+  }
+  ctx.restore();
+}
+
+/* --- mobilier de la feuille : toujours à l'image ------------------------ */
+
+function feuille(t, L) {
+  ctx.fillStyle = C.fond;
+  ctx.fillRect(0, 0, L.W, L.H);
+
+  // Grille de calque, qui s'installe pendant la première seconde.
+  const g = e3(seg(t, 0, 0.9));
+  if (g > 0.01) {
+    ctx.save();
+    ctx.globalAlpha = g;
+    ctx.strokeStyle = C.grille;
+    ctx.lineWidth = 1;
+    const pas = L.vert ? 45 : 48;
+    for (let x = pas; x < L.W; x += pas) trait(x, 0, x, L.H);
+    for (let y = pas; y < L.H; y += pas) trait(0, y, L.W, y);
+    ctx.strokeStyle = 'rgba(140,190,235,0.14)';
+    for (let x = pas * 5; x < L.W; x += pas * 5) trait(x, 0, x, L.H);
+    for (let y = pas * 5; y < L.H; y += pas * 5) trait(0, y, L.W, y);
+    ctx.restore();
+  }
+
+  // Filet de feuille et marques de repérage aux quatre angles.
+  const b = L.m * 0.42;
+  const pf = e3(seg(t, 0.15, 1.1));
+  ctx.save();
+  ctx.globalAlpha = pf * 0.5;
+  cadre(b, b, L.W - 2 * b, L.H - 2 * b, 1, C.traitF, 1.5);
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = pf;
+  ctx.strokeStyle = C.laiton;
+  ctx.lineWidth = 2;
+  const r = 20;
+  [[b, b, 1, 1], [L.W - b, b, -1, 1], [b, L.H - b, 1, -1], [L.W - b, L.H - b, -1, -1]]
+    .forEach(function (a) {
+      trait(a[0], a[1], a[0] + r * a[2], a[1]);
+      trait(a[0], a[1], a[0], a[1] + r * a[3]);
+    });
+  ctx.restore();
+
+  // Fil de tête et code temporel : la feuille se sait en train de défiler.
+  const pt = seg(t, 0.45, 1.3);
+  mono('AGBÉ YAVO GAËL BORROMÉE — INGÉNIEUR LOGICIEL', b + 30, b + 36, 20, C.sourd, 'left', pt, 3);
+  const s = Math.min(DUREE, Math.floor(t));
+  mono('00:' + String(s).padStart(2, '0') + ' / 00:20', L.W - b - 30, b + 36, 20, C.sourd, 'right', pt, 3);
+}
+
+/** Cartouche : le bloc-titre du plan. Petit en coin, grand au dernier plan. */
+function cartouche(x, y, w, h, p, grand, url) {
+  if (p <= 0.001) return;
+  const q = e3(p);
+  ctx.save();
+  ctx.globalAlpha *= Math.min(1, p * 2.2);
+  ctx.fillStyle = C.fond2;
+  ctx.fillRect(x, y, w, h);
+  cadre(x, y, w, h, q, C.traitF, 2);
+  cadre(x + 6, y + 6, w - 12, h - 12, Math.max(0, q * 1.25 - 0.25), C.laiton, 1.2);
+  ctx.restore();
+  if (q < 0.55) return;
+
+  const a = seg(q, 0.55, 1);
+  const k = h / 132;
+  const px = x + 24 * k;
+  if (grand) {
+    /* Le grand cartouche se pose en fractions de SA hauteur : calé sur celle
+       du petit, son contenu sortait de la boîte. */
+    const pad = h * 0.085;
+    const pxg = x + pad;
+    texte('AGBÉ GAËL', pxg, y + h * 0.36, F_TITRE, h * 0.30, C.papier, 'left', a);
+    mono('INGÉNIEUR LOGICIEL · ABIDJAN', pxg, y + h * 0.48, h * 0.068, C.encre2, 'left', a, h * 0.012);
+    ctx.save();
+    ctx.globalAlpha = a * 0.55;
+    ctx.strokeStyle = C.traitF;
+    ctx.lineWidth = 1.5;
+    trait(pxg, y + h * 0.59, x + w - pad, y + h * 0.59);
+    ctx.restore();
+
+    // Les mentions du bloc-titre, à droite, comme sur une planche.
+    mono('RÉF. AG-00', x + w - pad, y + h * 0.24, h * 0.062, C.sourd, 'right', a, h * 0.011);
+    mono('ÉCH. 1:1 · 2026', x + w - pad, y + h * 0.36, h * 0.062, C.sourd, 'right', a, h * 0.011);
+
+    /* L'adresse est l'unique chose à retenir : c'est la ligne la plus grande
+       après le nom, et la seule en laiton. Elle se réduit si le domaine
+       saisi est plus long que la boîte. */
+    if (url) {
+      let tu = h * 0.105;
+      while (largeur(url, F_MONO, tu, tu * 0.1, '700') > w - 2 * pad && tu > 12) tu -= 1;
+      texte(url, pxg, y + h * 0.79, F_MONO, tu, C.laiton, 'left', seg(q, 0.72, 1), tu * 0.1, '700');
+    }
+    mono('gaelagbe@gmail.com', pxg, y + h * 0.93, h * 0.058, C.sourd, 'left', seg(q, 0.85, 1), h * 0.009);
+  } else {
+    texte('AG', px, y + 56 * k, F_TITRE, 44 * k, C.laiton, 'left', a);
+    mono('RÉF. AG-00', px + 62 * k, y + 44 * k, 17 * k, C.sourd, 'left', a, 2.6 * k);
+    mono('PLANCHE ANIMÉE', px + 62 * k, y + 66 * k, 17 * k, C.sourd, 'left', a, 2.6 * k);
+    ctx.save();
+    ctx.globalAlpha = a * 0.55;
+    ctx.strokeStyle = C.traitF;
+    ctx.lineWidth = 1.2;
+    trait(px, y + 84 * k, x + w - 24 * k, y + 84 * k);
+    ctx.restore();
+    mono('ABIDJAN · CI', px, y + 110 * k, 17 * k, C.sourd, 'left', a, 2.6 * k);
+  }
+}
+
+/** Tampon incliné, comme sur le portrait du portfolio. */
+function tampon(cxp, cyp, t, p) {
+  if (p <= 0.001) return;
+  const ech = entre(1.55, 1, e3(p));
+  const a = Math.min(1, p * 3);
+  ctx.save();
+  ctx.globalAlpha *= a;
+  ctx.translate(cxp, cyp);
+  ctx.rotate(-6 * Math.PI / 180);
+  ctx.scale(ech, ech);
+  const lg = largeur(t, F_MONO, 32, 6, '700') + 56;
+  const h = 72;
+  ctx.fillStyle = 'rgba(227,169,60,0.15)';
+  ctx.fillRect(-lg / 2, -h / 2, lg, h);
+  ctx.strokeStyle = C.laiton;
+  ctx.lineWidth = 3.5;
+  ctx.strokeRect(-lg / 2, -h / 2, lg, h);
+  ctx.lineWidth = 1.4;
+  ctx.globalAlpha *= 0.45;
+  ctx.strokeRect(-lg / 2 + 7, -h / 2 + 7, lg - 14, h - 14);
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha *= a;
+  ctx.translate(cxp, cyp);
+  ctx.rotate(-6 * Math.PI / 180);
+  ctx.scale(ech, ech);
+  texte(t, 0, 11, F_MONO, 32, C.laiton, 'center', 1, 6, '700');
+  ctx.restore();
+}
+
+/* ============================================================== 1. LE DOUTE */
+
+/* Éclats de la maquette : tirés une seule fois, de façon déterministe, pour
+   que deux exports donnent exactement la même image. */
+const ECLATS = (function () {
+  let s = 20261108;
+  const r = function () { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+  const a = [];
+  for (let i = 0; i < 120; i++) {
+    a.push({ dx: r() * 2 - 1, dy: r() * 2 - 1, w: 9 + r() * 30, h: 7 + r() * 20,
+             vx: (r() * 2 - 1) * 2.6, vy: -1.4 - r() * 2.8, rot: r() * 6.28, vr: (r() * 2 - 1) * 0.16, c: r() });
+  }
+  return a;
+})();
+
+function plan1(t, L) {
+  const a = env(t, 0.1, 0.5, 3.72, 4.0);
+  if (a <= 0.001) return;
+  ctx.save();
+  ctx.globalAlpha = a;
+
+  const cxp = L.vert ? L.W / 2 : L.scene.x + L.scene.w / 2;
+  const cyp = L.vert ? 1000 : L.scene.y + L.scene.h / 2;
+  const mw = L.vert ? 620 : 660;
+  const mh = mw * 0.6;
+
+  const pm = seg(t, 0.45, 1.25);
+  const fissure = seg(t, 1.5, 1.88);
+  const eclat = seg(t, 1.86, 2.9);
+
+  if (eclat < 1) {
+    ctx.save();
+    ctx.globalAlpha = a * (1 - eclat) * e3(pm);
+    const s = entre(0.86, 1, e3(pm));
+    ctx.translate(cxp, cyp);
+    ctx.scale(s, s);
+    ctx.translate(-cxp, -cyp);
+
+    const x = cxp - mw / 2;
+    const y = cyp - mh / 2;
+    const g = ctx.createLinearGradient(x, y, x + mw, y + mh);
+    g.addColorStop(0, '#3f7ae4');
+    g.addColorStop(0.55, '#6a52d8');
+    g.addColorStop(1, '#9d3fc2');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, mw, mh);
+
+    // Fausse interface : des blocs qui ne veulent rien dire, c'est le propos.
+    ctx.fillStyle = 'rgba(255,255,255,0.86)';
+    ctx.fillRect(x + 34, y + 32, mw * 0.3, 18);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillRect(x + 34, y + 64, mw * 0.52, 10);
+    ctx.fillRect(x + 34, y + 82, mw * 0.42, 10);
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    for (let i = 0; i < 3; i++) ctx.fillRect(x + 34 + i * (mw - 68) / 3, y + 120, (mw - 68) / 3 - 14, mh - 160);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillRect(x + mw - 150, y + 30, 116, 36);
+
+    if (fissure > 0) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 9; i++) {
+        const ang = (i / 9) * 6.2832 + 0.4;
+        const lg = (mw * 0.56) * e3(fissure) * (0.6 + 0.4 * ((i * 7) % 5) / 5);
+        trait(cxp, cyp, cxp + Math.cos(ang) * lg, cyp + Math.sin(ang) * lg * 0.7);
+      }
+    }
+    ctx.restore();
+  }
+
+  if (eclat > 0.001 && eclat < 1) {
+    const k = eclat * 46;
+    ctx.save();
+    ctx.globalAlpha = a * (1 - eclat * eclat);
+    ECLATS.forEach(function (p) {
+      const x = cxp + p.dx * mw * 0.48 + p.vx * k;
+      const y = cyp + p.dy * mh * 0.48 + p.vy * k + 0.034 * k * k;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.rot + p.vr * k);
+      ctx.fillStyle = p.c < 0.34 ? '#3f7ae4' : p.c < 0.68 ? '#6a52d8' : '#9d3fc2';
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  // Rien n'occupe la gauche à ce plan : le titre peut aller plus large.
+  carte(L, ['TOUT LE MONDE', 'SAIT FAIRE', 'UNE MAQUETTE'], null, seg(t, 2.0, 3.25), 1,
+        L.vert ? L.cw : 700);
+  ctx.restore();
+}
+
+/* ============================================================= 2. LA PREUVE */
+
+const MODULES_LA = ['BIENS', 'VALID.', 'ENQUÊTES', 'VISITES', 'CONTRATS', 'RÉCLAM.', 'MESSAG.',
+                    'PARTEN.', 'NOTIFS', 'AUDIT', 'ZONES', 'TABL. BORD', 'COMPTES', 'ADRESSES'];
+
+function plan2(t, L) {
+  const a = env(t, 4.0, 4.35, 8.72, 9.0);
+  if (a <= 0.001) return;
+  const u = t - 4;
+  const s = L.scene;
+  ctx.save();
+  ctx.globalAlpha = a;
+
+  /* Les trois couches sont dimensionnées sur leur contenu, pas sur une
+     fraction de la scène : une boîte à moitié vide trahit le dessin. */
+  const cols = 5;
+  const rangs = Math.ceil(14 / cols);
+  const ch = L.vert ? 52 : 58;
+  const hGrille = rangs * ch + (rangs - 1) * 8;
+  const hb2 = 46 + 54 + 18 + hGrille + 24;
+  const hCote = L.vert ? 118 : 234;          // clients et données
+  let b1, b2, b3;
+
+  if (L.vert) {
+    b1 = { x: s.x, y: s.y, w: s.w, h: hCote };
+    b2 = { x: s.x, y: s.y + hCote + 40, w: s.w, h: hb2 };
+    b3 = { x: s.x, y: s.y + hCote + hb2 + 80, w: s.w, h: hCote };
+  } else {
+    const g = 74;
+    const w1 = (s.w - 2 * g) * 0.24;
+    const w2 = (s.w - 2 * g) * 0.50;
+    const yc = s.y + s.h * 0.42;
+    b1 = { x: s.x, y: yc - hCote / 2, w: w1, h: hCote };
+    b2 = { x: s.x + w1 + g, y: yc - hb2 / 2, w: w2, h: hb2 };
+    b3 = { x: s.x + w1 + w2 + 2 * g, y: yc - hCote / 2, w: s.w - w1 - w2 - 2 * g, h: hCote };
+  }
+
+  const boite = function (b, titre, p) {
+    ctx.save();
+    ctx.globalAlpha *= 0.7 * bride(p * 3);
+    ctx.fillStyle = C.fond2;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.restore();
+    cadre(b.x, b.y, b.w, b.h, p, C.traitF, 2);
+    mono(titre, b.x + 16, b.y + 30, 19, C.sourd, 'left', seg(p, 0.6, 1), 3);
+  };
+
+  boite(b1, 'CLIENTS', seg(u, 0.15, 0.75));
+  boite(b2, 'SERVICE', seg(u, 0.3, 0.95));
+  boite(b3, 'DONNÉES', seg(u, 0.45, 1.1));
+
+  /* Les items d'une couche : empilés à l'horizontale (colonne étroite),
+     côte à côte à la verticale (bande large). */
+  const items = function (b, liste, t0) {
+    const n = liste.length;
+    const cote = L.vert;
+    const iw = cote ? (b.w - 28 - (n - 1) * 10) / n : b.w - 28;
+    const ih = 46;
+    liste.forEach(function (nom, i) {
+      const p = seg(u, t0 + i * 0.12, t0 + 0.4 + i * 0.12);
+      if (p <= 0.001) return;
+      const x = cote ? b.x + 14 + i * (iw + 10) : b.x + 14;
+      const y = cote ? b.y + 52 : b.y + 52 + i * (ih + 12);
+      ctx.save();
+      ctx.globalAlpha *= p;
+      ctx.fillStyle = C.fond;
+      ctx.fillRect(x, y, iw, ih);
+      ctx.strokeStyle = C.trait;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, iw, ih);
+      ctx.restore();
+      const ft = Math.min(17, (iw - 16) / (nom.length * 0.62));
+      if (cote) mono(nom, x + iw / 2, y + 29, ft, C.encre2, 'center', p, 1.2);
+      else mono(nom, x + 12, y + 29, ft, C.encre2, 'left', p, 1.8);
+    });
+  };
+
+  items(b1, L.vert ? ['CLIENT', 'AGENT', 'GESTION'] : ['APP CLIENT · FLUTTER', 'APP AGENT · FLUTTER', 'CONSOLE GESTION · WEB'], 0.75);
+  items(b3, L.vert ? ['POSTGRESQL', 'REDIS', 'CELERY'] : ['POSTGRESQL 14', 'REDIS', 'CELERY BEAT'], 1.0);
+
+  // L'API, puis ses quatorze modules qui s'allument en cascade.
+  const pApi = seg(u, 0.95, 1.4);
+  if (pApi > 0.001) {
+    ctx.save();
+    ctx.globalAlpha *= pApi;
+    ctx.fillStyle = 'rgba(227,169,60,0.14)';
+    ctx.fillRect(b2.x + 14, b2.y + 46, b2.w - 28, 54);
+    ctx.strokeStyle = C.laiton;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(b2.x + 14, b2.y + 46, b2.w - 28, 54);
+    ctx.restore();
+    mono('DJANGO REST · JWT', b2.x + 30, b2.y + 80, 22, C.laiton, 'left', pApi, 3);
+  }
+
+  const gx = b2.x + 14;
+  const gy = b2.y + 118;
+  const gw = b2.w - 28;
+  const cw = (gw - (cols - 1) * 8) / cols;
+  for (let i = 0; i < 14; i++) {
+    const p = seg(u, 1.25 + i * 0.062, 1.42 + i * 0.062);
+    if (p <= 0.001) continue;
+    const x = gx + (i % cols) * (cw + 8);
+    const y = gy + Math.floor(i / cols) * (ch + 8);
+    ctx.save();
+    ctx.globalAlpha *= p;
+    ctx.fillStyle = C.fond;
+    ctx.fillRect(x, y, cw, ch);
+    ctx.strokeStyle = C.traitF;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x, y, cw, ch);
+    ctx.restore();
+    const ft = Math.min(18, (cw - 10) / (MODULES_LA[i].length * 0.62));
+    mono(MODULES_LA[i], x + cw / 2, y + ch / 2 + ft * 0.38, ft, C.encre2, 'center', p, 0.8);
+  }
+
+  // Les flèches, qui se tracent une fois les boîtes posées.
+  const fleche = function (x1, y1, x2, y2, p) {
+    if (p <= 0.001) return;
+    ligne(x1, y1, x2, y2, p, C.laiton, 2.5);
+    if (p > 0.85) {
+      const r = seg(p, 0.85, 1) * 13;
+      ctx.save();
+      ctx.strokeStyle = C.laiton;
+      ctx.lineWidth = 2.5;
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      trait(x2, y2, x2 - r * Math.cos(ang - 0.42), y2 - r * Math.sin(ang - 0.42));
+      trait(x2, y2, x2 - r * Math.cos(ang + 0.42), y2 - r * Math.sin(ang + 0.42));
+      ctx.restore();
+    }
+  };
+
+  if (L.vert) {
+    fleche(b1.x + b1.w / 2, b1.y + b1.h, b2.x + b2.w / 2, b2.y, seg(u, 1.9, 2.3));
+    fleche(b2.x + b2.w / 2, b2.y + b2.h, b3.x + b3.w / 2, b3.y, seg(u, 2.05, 2.45));
+  } else {
+    fleche(b1.x + b1.w, b1.y + b1.h / 2, b2.x, b2.y + b2.h / 2, seg(u, 1.9, 2.3));
+    fleche(b2.x + b2.w, b2.y + b2.h / 2, b3.x, b3.y + b3.h / 2, seg(u, 2.05, 2.45));
+  }
+
+  /* La cote se trace SOUS la boîte qu'elle mesure, comme sur un plan. */
+  const yCote = Math.max(b2.y + b2.h, L.vert ? b3.y + b3.h : b2.y + b2.h) + 44;
+  cote(gx, gx + gw, yCote, '14 MODULES MÉTIER', seg(u, 2.3, 3.0));
+
+  // L'état explicite, qui franchit sa transition.
+  const pe = seg(u, 2.9, 3.4);
+  const pv = seg(u, 3.45, 3.9);
+  const py = yCote + 36;
+  if (pv < 0.5) pastille(gx, py, 'EN_ATTENTE', C.sourd, pe * (1 - pv * 2), false);
+  if (pv > 0.45) pastille(gx, py, 'VALIDÉ', C.prod, seg(pv, 0.45, 0.9), true);
+
+  carte(L, ['JE LIVRE', 'LE SYSTÈME'], '14 MODULES · 5 RÔLES · 1 API', seg(u, 0.7, 2.0), 1);
+  ctx.restore();
+}
+
+/* ============================================================ 3. L'ÉTENDUE */
+
+const PLANCHES = [
+  { r: 'LA-01', n: 'LOCAFRICA',    f: 0, prod: true },
+  { r: 'AF-09', n: 'AFRIKLANCE',   f: 4, prod: true },
+  { r: 'OS-02', n: 'DB-MONITOR',   f: 1, prod: true },
+  { r: 'VZ-03', n: 'VIZO',         f: 2, prod: false },
+  { r: 'WZ-04', n: 'WOZOLAB',      f: 3, prod: false },
+  { r: 'CD-05', n: 'CANADA DIRT',  f: 2, prod: true },
+  { r: 'XV-06', n: 'XVIBE',        f: 5, prod: false },
+  { r: 'NM-07', n: 'NEXTMAKERS',   f: 0, prod: true },
+  { r: 'FR-08', n: 'FRAUDE',       f: 6, prod: false }
+];
+
+/** Micro-schéma : assez pour que chaque planche ait sa silhouette. */
+function micro(f, x, y, w, h, p) {
+  if (p <= 0.001) return;
+  ctx.save();
+  ctx.globalAlpha *= p;
+  ctx.strokeStyle = C.traitF;
+  ctx.lineWidth = 1.6;
+  const q = e3(p);
+  if (f === 0) {                                   // chaîne de traitement
+    const n = 3;
+    const bw = (w - (n - 1) * 14) / n;
+    for (let i = 0; i < n; i++) {
+      const xx = x + i * (bw + 14);
+      if (q > i / n) ctx.strokeRect(xx, y + h * 0.3, bw, h * 0.4);
+      if (i < n - 1 && q > (i + 0.6) / n) trait(xx + bw, y + h * 0.5, xx + bw + 14, y + h * 0.5);
+    }
+  } else if (f === 1) {                            // télémétrie
+    ctx.beginPath();
+    for (let i = 0; i <= 26 * q; i++) {
+      const xx = x + (w * i) / 26;
+      const yy = y + h * 0.5 - Math.sin(i * 0.7) * h * 0.26 - Math.sin(i * 0.23) * h * 0.1;
+      i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+    }
+    ctx.strokeStyle = C.laiton;
+    ctx.stroke();
+    ctx.strokeStyle = C.traitF;
+    trait(x, y + h, x + w * q, y + h);
+  } else if (f === 2) {                            // surfaces multiples
+    const n = 4;
+    const bw = (w - (n - 1) * 10) / n;
+    for (let i = 0; i < n; i++) {
+      if (q > i / n) ctx.strokeRect(x + i * (bw + 10), y + h * (i % 2 ? 0.22 : 0.12), bw, h * 0.66);
+    }
+  } else if (f === 3) {                            // boucle circulaire
+    ctx.beginPath();
+    ctx.arc(x + w / 2, y + h / 2, Math.min(w, h) * 0.38, -1.57, -1.57 + 6.2832 * q);
+    ctx.stroke();
+    if (q > 0.8) { ctx.fillStyle = C.laiton; ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, 4, 0, 6.2832); ctx.fill(); }
+  } else if (f === 4) {                            // séquestre : deux pôles
+    ctx.strokeRect(x, y + h * 0.3, w * 0.28, h * 0.4);
+    ctx.strokeRect(x + w * 0.72, y + h * 0.3, w * 0.28, h * 0.4);
+    if (q > 0.4) {
+      ctx.strokeStyle = C.laiton;
+      ctx.strokeRect(x + w * 0.38, y + h * 0.22, w * 0.24, h * 0.56);
+      trait(x + w * 0.28, y + h * 0.5, x + w * 0.38, y + h * 0.5);
+      trait(x + w * 0.62, y + h * 0.5, x + w * 0.72, y + h * 0.5);
+    }
+  } else if (f === 5) {                            // contrat d'interface
+    for (let i = 0; i < 4; i++) {
+      if (q > i / 4) {
+        trait(x, y + h * (0.18 + i * 0.22), x + w * 0.2, y + h * (0.18 + i * 0.22));
+        trait(x + w * 0.28, y + h * (0.18 + i * 0.22), x + w, y + h * (0.18 + i * 0.22));
+      }
+    }
+  } else {                                         // nuage déséquilibré
+    let s = 7;
+    const r = function () { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    for (let i = 0; i < 46; i++) {
+      const xx = x + r() * w;
+      const yy = y + r() * h;
+      const fraude = i % 13 === 0;
+      if (r() > q) continue;
+      ctx.fillStyle = fraude ? C.laiton : 'rgba(168,192,214,0.5)';
+      ctx.beginPath();
+      ctx.arc(xx, yy, fraude ? 4 : 2.4, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function plan3(t, L) {
+  const a = env(t, 9.0, 9.3, 13.72, 14.0);
+  if (a <= 0.001) return;
+  const u = t - 9;
+  const s = L.scene;
+  ctx.save();
+  ctx.globalAlpha = a;
+
+  // Le plan précédent devient une vignette parmi neuf : la planche entière
+  // grandit depuis la position qu'occupait l'API.
+  const z = e3(seg(u, 0, 0.85));
+  const ech = entre(0.42, 1, z);
+  const ax = s.x + s.w * 0.36;
+  const ay = s.y + s.h * 0.4;
+  ctx.translate(ax, ay);
+  ctx.scale(ech, ech);
+  ctx.translate(-ax, -ay);
+
+  const cols = 3;
+  const g = L.vert ? 16 : 22;
+  const cw = (s.w - (cols - 1) * g) / cols;
+  const chh = (s.h - 2 * g) / 3;
+
+  PLANCHES.forEach(function (pl, i) {
+    const p = seg(u, 0.5 + i * 0.13, 0.95 + i * 0.13);
+    if (p <= 0.001) return;
+    const x = s.x + (i % cols) * (cw + g);
+    const y = s.y + Math.floor(i / cols) * (chh + g);
+    ctx.save();
+    ctx.globalAlpha *= Math.min(1, p * 2);
+    ctx.fillStyle = C.fond2;
+    ctx.fillRect(x, y, cw, chh);
+    ctx.restore();
+    cadre(x, y, cw, chh, p, C.traitF, 1.8);
+    micro(pl.f, x + 20, y + 44, cw - 40, chh - 100, seg(p, 0.35, 1));
+    mono(pl.r, x + 14, y + 28, 17, C.laiton, 'left', seg(p, 0.5, 1), 2.4);
+    mono(pl.n, x + 14, y + chh - 18, 16, C.encre2, 'left', seg(p, 0.6, 1), 1.6);
+    if (pl.prod) {
+      const pp = seg(u, 2.5 + i * 0.09, 2.85 + i * 0.09);
+      if (pp > 0.001) {
+        ctx.save();
+        ctx.globalAlpha *= pp;
+        ctx.fillStyle = C.prod;
+        ctx.beginPath();
+        ctx.arc(x + cw - 22, y + 22, 7, 0, 6.2832);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  });
+
+  // Les moyens de paiement, sous la planche Afriklance.
+  const pb = seg(u, 3.2, 3.6);
+  if (pb > 0.001) {
+    const x = s.x + (1 % cols) * (cw + g);
+    const y = s.y + chh - 48;
+    ctx.save();
+    ctx.globalAlpha *= pb;
+    ctx.beginPath();
+    ctx.rect(x + 8, y, cw - 16, 30);
+    ctx.clip();
+    ctx.fillStyle = C.fond;
+    ctx.fillRect(x + 8, y, cw - 16, 30);
+    const mots = 'CINETPAY · ORANGE · MTN · MOOV · WAVE · ';
+    const lg = largeur(mots, F_MONO, 16, 1.6, '500');
+    const d = ((u - 3.2) * 54) % lg;
+    for (let k = -1; k < 3; k++) mono(mots, x + 12 - d + k * lg, y + 21, 16, C.laiton, 'left', 1, 1.6);
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  // La légende du statut, hors de la transformation d'échelle.
+  ctx.save();
+  ctx.globalAlpha = a;
+  const pl = seg(u, 2.9, 3.4);
+  if (pl > 0.001) {
+    const y = L.vert ? s.y + s.h + 54 : s.y + s.h + 52;
+    ctx.save();
+    ctx.globalAlpha *= pl;
+    ctx.fillStyle = C.prod;
+    ctx.beginPath();
+    ctx.arc(s.x + 8, y - 7, 7, 0, 6.2832);
+    ctx.fill();
+    ctx.restore();
+    mono('EN PRODUCTION', s.x + 26, y, 19, C.prod, 'left', pl, 3);
+  }
+  carte(L, ['9 PLATEFORMES', 'EN PRODUCTION'], '9 LANGAGES · 56 DÉPÔTS', seg(u, 0.8, 2.1), 1);
+  ctx.restore();
+}
+
+/* =============================================================== 4. LE PRIX */
+
+/* Les quatre paliers viennent du barème réel : vitrine soignée, puis SEO,
+   puis comptes et rôles, puis tests et CI/CD. Changer les taux du site
+   demande de refaire ce plan. */
+const PALIERS = [
+  { f: [295000, 440000], e: [450, 670] },
+  { f: [405000, 605000], e: [620, 920] },
+  { f: [550000, 830000], e: [840, 1270] },
+  { f: [775000, 1160000], e: [1180, 1770] }
+];
+const LIGNES_DEVIS = [
+  { n: 'SITE VITRINE', d: 'NATURE DU PROJET', j: '8 J' },
+  { n: 'SEO TECHNIQUE & PERFORMANCE', d: 'RENDU SERVEUR, CORE WEB VITALS', j: '+3 J' },
+  { n: 'COMPTES, RÔLES & PERMISSIONS', d: 'INSCRIPTION, JWT, DROITS', j: '+4 J' },
+  { n: 'TESTS AUTOMATISÉS & CI/CD', d: 'COUVERTURE, PIPELINE', j: '+6 J' }
+];
+const COCHES = [0, 0.85, 1.5, 2.15];
+
+function plan4(t, L) {
+  const a = env(t, 14.0, 14.3, 17.72, 18.0);
+  if (a <= 0.001) return;
+  const u = t - 14;
+  const s = L.scene;
+  ctx.save();
+  ctx.globalAlpha = a;
+
+  const pz = e3(seg(u, 0, 0.5));
+  const ech = entre(1.06, 1, pz);
+  ctx.translate(s.x + s.w / 2, s.y + s.h / 2);
+  ctx.scale(ech, ech);
+  ctx.translate(-(s.x + s.w / 2), -(s.y + s.h / 2));
+
+  /* Hauteurs calculées sur le contenu : en vertical, la mention du bas
+     recouvrait la ligne en euros quand la boîte suivait la scène. */
+  const lh = L.vert ? 74 : 92;
+  const hForm = 46 + 4 * (lh + 10) + 10;
+  const hBud = L.vert ? 300 : 316;
+  let form, bud;
+  if (L.vert) {
+    form = { x: s.x, y: s.y, w: s.w, h: hForm };
+    bud = { x: s.x, y: s.y + hForm + 44, w: s.w, h: hBud };
+  } else {
+    const w = s.w * 0.56;
+    form = { x: s.x, y: s.y + 40, w: w, h: hForm };
+    bud = { x: s.x + w + 48, y: s.y + 40 + (hForm - hBud) / 2, w: s.w - w - 48, h: hBud };
+  }
+  mono('BON DE TRAVAIL — DEMANDE D’ESTIMATION', form.x, form.y + 22, 18, C.sourd, 'left', seg(u, 0.1, 0.5), 3);
+
+  LIGNES_DEVIS.forEach(function (l, i) {
+    const p = seg(u, 0.2 + i * 0.1, 0.6 + i * 0.1);
+    if (p <= 0.001) return;
+    const y = form.y + 46 + i * (lh + 10);
+    const coche = u >= COCHES[i];
+    const pc = seg(u, COCHES[i], COCHES[i] + 0.22);
+    ctx.save();
+    ctx.globalAlpha *= p;
+    ctx.fillStyle = coche ? 'rgba(227,169,60,0.13)' : C.fond2;
+    ctx.fillRect(form.x, y, form.w, lh);
+    ctx.strokeStyle = coche ? C.laiton : C.trait;
+    ctx.lineWidth = coche ? 2 : 1.5;
+    ctx.strokeRect(form.x, y, form.w, lh);
+    // La case.
+    const bx = form.x + 22;
+    const by = y + lh / 2 - 13;
+    ctx.strokeStyle = coche ? C.laiton : C.traitF;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, 26, 26);
+    if (pc > 0.001) {
+      ctx.fillStyle = C.laiton;
+      ctx.globalAlpha *= pc;
+      ctx.fillRect(bx, by, 26, 26);
+      ctx.strokeStyle = '#11202e';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(bx + 6, by + 14);
+      ctx.lineTo(bx + 11, by + 19);
+      ctx.lineTo(bx + 20, by + 8);
+      ctx.stroke();
+    }
+    ctx.restore();
+    const tx = form.x + 64;
+    const ft = L.vert ? 22 : 24;
+    texte(l.n, tx, y + lh / 2 - 2, F_MONO, ft, coche ? C.papier : C.encre2, 'left', p, 1.4, '700');
+    mono(l.d, tx, y + lh / 2 + 22, 15, C.sourd, 'left', p * 0.9, 1.4);
+    mono(l.j, form.x + form.w - 20, y + lh / 2 + 6, 17, coche ? C.laiton : C.sourd, 'right', p, 2);
+  });
+
+  // Le curseur, qui se déplace d'une case à l'autre et clique.
+  const pcur = seg(u, 0.35, 0.6);
+  if (pcur > 0.001 && u < 2.75) {
+    let i = 1;
+    while (i < 3 && u > COCHES[i + 1] - 0.3) i++;
+    const prev = Math.max(1, i - 1);
+    const yFor = function (k) { return form.y + 46 + k * (lh + 10) + lh / 2; };
+    const tr = seg(u, COCHES[prev] + 0.12, COCHES[i] - 0.12);
+    const cyc = entre(yFor(prev), yFor(i), e3(tr));
+    const cxc = form.x + 35;
+    const clic = COCHES.reduce(function (m, c) { return Math.min(m, Math.abs(u - c)); }, 9);
+    ctx.save();
+    ctx.globalAlpha *= pcur;
+    if (clic < 0.3) {
+      ctx.strokeStyle = C.laiton;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha *= 1 - clic / 0.3;
+      ctx.beginPath();
+      ctx.arc(cxc, cyc, 14 + clic * 70, 0, 6.2832);
+      ctx.stroke();
+      ctx.globalAlpha = pcur * a;
+    }
+    ctx.fillStyle = C.papier;
+    ctx.strokeStyle = '#11202e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cxc, cyc);
+    ctx.lineTo(cxc + 10, cyc + 28);
+    ctx.lineTo(cxc + 15, cyc + 16);
+    ctx.lineTo(cxc + 28, cyc + 13);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Le budget, qui monte par paliers.
+  let k = 0;
+  for (let i = 1; i < COCHES.length; i++) if (u >= COCHES[i]) k = i;
+  const pk = k === 0 ? 1 : seg(u, COCHES[k], COCHES[k] + 0.26);
+  const pr = PALIERS[Math.max(0, k - 1)];
+  const cu = PALIERS[k];
+  const f1 = entre(pr.f[0], cu.f[0], e3(pk));
+  const f2 = entre(pr.f[1], cu.f[1], e3(pk));
+
+  const pb = seg(u, 0.4, 0.9);
+  if (pb > 0.001) {
+    ctx.save();
+    ctx.globalAlpha *= pb;
+    ctx.fillStyle = C.cadre;
+    ctx.fillRect(bud.x, bud.y, bud.w, bud.h);
+    ctx.restore();
+    cadre(bud.x, bud.y, bud.w, bud.h, pb, C.traitF, 2);
+
+    const bx = bud.x + 28;
+    mono('BUDGET INDICATIF', bx, bud.y + 46, 19, C.sourd, 'left', pb, 3.4);
+
+    const montant = espace(f1) + ' – ' + espace(f2);
+    let tm = L.vert ? 66 : 62;
+    while (largeur(montant, F_TITRE, tm, 0) > bud.w - 56 && tm > 26) tm -= 2;
+    texte(montant, bx, bud.y + 46 + tm + 22, F_TITRE, tm, C.laiton, 'left', pb);
+    mono('FRANCS CFA', bx, bud.y + 46 + tm + 56, 20, C.encre2, 'left', pb, 3.4);
+
+    // La cote tombe quand le dernier module est coché.
+    const pf = seg(u, COCHES[3] + 0.3, COCHES[3] + 0.9);
+    cote(bx, bx + largeur(montant, F_TITRE, tm, 0), bud.y + 46 + tm + 92, null, pf);
+    mono('soit ' + espace(cu.e[0]) + ' € – ' + espace(cu.e[1]) + ' €',
+         bx, bud.y + 46 + tm + 128, 20, C.sourd, 'left', pf, 2.4);
+    mono('CALCULÉ EN DIRECT · 5 ÉTAPES · 2 MINUTES',
+         bx, bud.y + bud.h - 26, 16, C.sourd, 'left', seg(u, 1.2, 1.7), 2.4);
+  }
+
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = a;
+  carte(L, ['VOTRE PRIX', 'EN 2 MINUTES'], 'DEVIS EN LIGNE · FRANCS CFA', seg(u, 0.9, 2.2), 1);
+  ctx.restore();
+}
+
+/* ========================================================== 5. LE CARTOUCHE */
+
+function plan5(t, L) {
+  const u = t - 18;
+  if (u < 0) return;
+  const p = seg(u, 0.05, 0.62);
+
+  // Le cartouche quitte son coin et vient occuper la feuille.
+  const petit = L.cart;
+  const gw = Math.min(L.W - 2 * L.m, L.vert ? 1e4 : 820);
+  const gh = gw * (L.vert ? 0.52 : 0.38);
+  const grand = { x: (L.W - gw) / 2, y: (L.H - gh) / 2 - (L.vert ? 70 : 34), w: gw, h: gh };
+  const q = e3(p);
+  const b = {
+    x: entre(petit.x, grand.x, q),
+    y: entre(petit.y, grand.y, q),
+    w: entre(petit.w, grand.w, q),
+    h: entre(petit.h, grand.h, q)
+  };
+
+  ctx.save();
+  cartouche(b.x, b.y, b.w, b.h, Math.max(0.56, p), q > 0.55, q > 0.72 ? etat.url : '');
+  ctx.restore();
+
+  tampon(b.x + b.w - (L.vert ? 150 : 190), b.y + b.h + (L.vert ? 110 : 96),
+         '9 SYSTÈMES LIVRÉS', seg(u, 0.92, 1.22));
+}
+
+/* ------------------------------------------------------- sous-titres gravés */
+
+const VOIX = [
+  { a: 0.25, b: 3.95, t: '« Une belle maquette, tout le monde sait en faire une. »' },
+  { a: 4.2, b: 8.9, t: '« Moi je livre le système : quatorze modules métier, cinq rôles, une seule API. »' },
+  { a: 9.2, b: 13.9, t: '« Neuf plateformes en production. Du paiement mobile money au collecteur de télémétrie en Go. »' },
+  { a: 14.2, b: 17.9, t: '« Votre prix, vous l’avez en deux minutes. Pas de “on vous recontacte”. »' },
+  { a: 18.2, b: 20, t: '« Agbé Gaël, ingénieur logiciel. Abidjan. »' }
+];
+
+function decoupe(t, famille, taille, esp, lgMax) {
+  const mots = t.split(' ');
+  const out = [];
+  let cur = '';
+  mots.forEach(function (m) {
+    const essai = cur ? cur + ' ' + m : m;
+    if (largeur(essai, famille, taille, esp, '500') > lgMax && cur) { out.push(cur); cur = m; }
+    else cur = essai;
+  });
+  if (cur) out.push(cur);
+  return out;
+}
+
+function soustitres(t, L) {
+  if (!etat.soustitres) return;
+  const v = VOIX.find(function (x) { return t >= x.a && t <= x.b; });
+  if (!v) return;
+  const alpha = Math.min(seg(t, v.a, v.a + 0.25), 1 - seg(t, v.b - 0.25, v.b));
+  if (alpha <= 0.001) return;
+  const lgMax = L.W - 2 * L.m - 80;
+  const lignes = decoupe(v.t, F_MONO, L.soutT, 1.6, lgMax);
+  const h = lignes.length * L.soutL + 26;
+  const y0 = L.soutY - (lignes.length - 1) * L.soutL;
+  ctx.save();
+  ctx.globalAlpha = alpha * 0.86;
+  ctx.fillStyle = C.fond;
+  ctx.fillRect(0, y0 - L.soutT - 14, L.W, h);
+  ctx.strokeStyle = C.trait;
+  ctx.lineWidth = 1.5;
+  trait(0, y0 - L.soutT - 14, L.W, y0 - L.soutT - 14);
+  ctx.restore();
+  lignes.forEach(function (s, i) {
+    mono(s, L.W / 2, y0 + i * L.soutL, L.soutT, C.encre2, 'center', alpha, 1.6);
+  });
+}
+
+/* ------------------------------------------------------------------ montage */
+
+function dessine(t) {
+  t = Math.max(0, Math.min(DUREE, t));
+  const L = plan();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  feuille(t, L);
+
+  plan1(t, L);
+  plan2(t, L);
+  plan3(t, L);
+  plan4(t, L);
+
+  // Le cartouche de coin s'efface au moment où le grand prend sa place.
+  if (t < 18) cartouche(L.cart.x, L.cart.y, L.cart.w, L.cart.h, seg(t, 1.9, 2.8), false, '');
+  plan5(t, L);
+
+  soustitres(t, L);
+
+  // Fondu au noir des deux premières et deux dernières dixièmes.
+  const n = Math.min(seg(t, 0, 0.22), 1 - seg(t, 19.88, 20));
+  if (n < 1) {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1 - n;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, L.W, L.H);
+    ctx.restore();
+  }
+}
+
+/* ========================================================== PUPITRE & EXPORT */
+
+const $ = function (s) { return document.querySelector(s); };
+const bLire = $('#lire');
+const bExp = $('#exporter');
+const lEtat = $('#etat');
+const lJauge = $('#jauge');
+const lHorloge = $('#horloge');
+
+/** Image d'arrêt : le plan de la preuve, qui dit le plus en une image. */
+const POSE = 6.9;
+
+function dimensionne() {
+  const vert = etat.format === '9x16';
+  CV.width = vert ? 1080 : 1920;
+  CV.height = vert ? 1920 : 1080;
+  $('#format').textContent = vert ? '9:16 · 1080×1920' : '16:9 · 1920×1080';
+}
+
+function horloge(t) {
+  lHorloge.textContent = '00:' + String(Math.floor(t)).padStart(2, '0') + ' / 00:20';
+}
+
+function pose() {
+  dessine(POSE);
+  horloge(POSE);
+}
+
+function dit(html) { lEtat.innerHTML = html; }
+
+function verrouille(v) {
+  bLire.disabled = v;
+  bExp.disabled = v;
+  document.querySelectorAll('#segFormat button').forEach(function (b) { b.disabled = v; });
+  $('#qualite').disabled = v;
+  $('#st').disabled = v;
+  $('#url').disabled = v;
+}
+
+/* --- lecture ------------------------------------------------------------- */
+
+function joue(surImage, fin) {
+  etat.lecture = true;
+  const t0 = performance.now();
+  const boucle = function () {
+    if (!etat.lecture) return;
+    const t = (performance.now() - t0) / 1000;
+    dessine(t);
+    horloge(Math.min(DUREE, t));
+    if (surImage) surImage(t);
+    if (t >= DUREE) {
+      etat.lecture = false;
+      if (fin) fin();
+      return;
+    }
+    requestAnimationFrame(boucle);
+  };
+  requestAnimationFrame(boucle);
+}
+
+bLire.addEventListener('click', function () {
+  if (etat.lecture) { etat.lecture = false; bLire.textContent = 'Lire les 20 secondes'; pose(); return; }
+  bLire.textContent = 'Arrêter';
+  bExp.disabled = true;
+  dit('Lecture…');
+  joue(null, function () {
+    bLire.textContent = 'Lire les 20 secondes';
+    bExp.disabled = false;
+    dit('Lecture terminée.');
+    lJauge.style.width = '0%';
+  });
+});
+
+/* --- export -------------------------------------------------------------- */
+
+function typeVideo() {
+  const essais = ['video/mp4;codecs=avc1.42E01E', 'video/mp4',
+                  'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  for (let i = 0; i < essais.length; i++) {
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(essais[i])) return essais[i];
+  }
+  return null;
+}
+
+async function sauve(blob, nom) {
+  let dl = null;
+  try {
+    dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+  } catch (e) { dl = null; }
+
+  if (dl) {
+    try {
+      await dl.save({ filename: nom, data: blob });
+      return 'enregistré';
+    } catch (e) {
+      if (e && e.code === 'declined') return 'annulé';
+      if (e && e.code === 'too_large') throw new Error('fichier trop lourd — baisse le débit d’encodage');
+      throw new Error((e && e.message) || 'enregistrement refusé');
+    }
+  }
+
+  // Hors de claude.ai — le fichier local ouvert dans Chrome : lien direct.
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = u;
+  a.download = nom;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+  return 'téléchargé';
+}
+
+bExp.addEventListener('click', async function () {
+  const mime = typeVideo();
+  if (!mime) {
+    dit('Ce navigateur ne sait pas enregistrer de vidéo. Ouvre la page dans Chrome.');
+    return;
+  }
+
+  etat.export = true;
+  verrouille(true);
+  const ext = mime.indexOf('mp4') >= 0 ? 'mp4' : 'webm';
+  dit('Rendu en cours — <b>ne change pas d’onglet</b>, l’enregistrement s’arrêterait.');
+
+  let blob;
+  try {
+    /* Un flux à 0 image/s ne part que sur `requestFrame()` : on pousse
+       l'image nous-mêmes après chaque dessin, au lieu de s'en remettre au
+       compositeur — qui n'envoie rien quand l'onglet n'est pas à l'écran. */
+    let flux = null;
+    let piste = null;
+    let manuel = false;
+    try {
+      flux = CV.captureStream(0);
+      piste = flux.getVideoTracks()[0];
+      manuel = !!(piste && typeof piste.requestFrame === 'function');
+    } catch (e) { flux = null; }
+    if (!manuel) {
+      if (flux) flux.getTracks().forEach(function (p) { p.stop(); });
+      flux = CV.captureStream(FPS);
+      piste = flux.getVideoTracks()[0];
+    }
+
+    const enr = new MediaRecorder(flux, { mimeType: mime, videoBitsPerSecond: etat.qualite });
+    const morceaux = [];
+    enr.ondataavailable = function (ev) { if (ev.data && ev.data.size) morceaux.push(ev.data); };
+    const arret = new Promise(function (r) { enr.onstop = r; });
+
+    // Une première image avant le départ, sinon l'encodeur ouvre sur du vide.
+    dessine(0);
+    if (manuel) piste.requestFrame();
+    enr.start();
+
+    await new Promise(function (resolve) {
+      joue(function (t) {
+        if (manuel) piste.requestFrame();
+        const p = Math.min(1, t / DUREE);
+        lJauge.style.width = (p * 100).toFixed(1) + '%';
+        dit('Rendu — <b>' + t.toFixed(1).replace('.', ',') + ' s</b> / 20 s. Ne change pas d’onglet.');
+      }, resolve);
+    });
+    // Une poignée d'images de marge avant la coupe, sinon la dernière manque.
+    await new Promise(function (r) { setTimeout(r, 260); });
+    enr.stop();
+    await arret;
+    flux.getTracks().forEach(function (p) { p.stop(); });
+    blob = new Blob(morceaux, { type: mime.split(';')[0] });
+  } catch (e) {
+    dit('Rendu impossible : ' + ((e && e.message) || e));
+    verrouille(false);
+    etat.export = false;
+    pose();
+    return;
+  }
+
+  if (!blob.size) {
+    dit('Le navigateur n’a renvoyé aucune image. Garde l’onglet au premier plan '
+      + 'pendant les 20 secondes du rendu, puis relance l’export.');
+    lJauge.style.width = '0%';
+    verrouille(false);
+    etat.export = false;
+    pose();
+    return;
+  }
+
+  const mo = (blob.size / 1048576).toFixed(1).replace('.', ',');
+  const nom = 'agbe-gael-plan-20s-' + etat.format + '.' + ext;
+  dit('Encodé — <b>' + mo + ' Mo</b>. Enregistrement…');
+
+  try {
+    const r = await sauve(blob, nom);
+    if (r === 'annulé') dit('Enregistrement annulé. Relance l’export quand tu veux.');
+    else dit('Vidéo ' + r + ' — <b>' + nom + '</b>, ' + mo + ' Mo, ' + ext.toUpperCase() + ' muet.');
+  } catch (e) {
+    dit('Enregistrement impossible : ' + ((e && e.message) || e));
+  }
+
+  lJauge.style.width = '0%';
+  verrouille(false);
+  etat.export = false;
+  pose();
+});
+
+/* --- réglages ------------------------------------------------------------ */
+
+document.querySelectorAll('#segFormat button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    if (etat.lecture || etat.export) return;
+    etat.format = b.dataset.f;
+    document.querySelectorAll('#segFormat button').forEach(function (o) {
+      o.setAttribute('aria-pressed', String(o === b));
+    });
+    dimensionne();
+    pose();
+  });
+});
+
+$('#qualite').addEventListener('change', function (e) { etat.qualite = +e.target.value; });
+$('#st').addEventListener('change', function (e) { etat.soustitres = e.target.checked; if (!etat.lecture) pose(); });
+$('#url').addEventListener('input', function (e) { etat.url = e.target.value.trim().slice(0, 48); });
+
+/* --- amorçage : on attend les polices, sinon le canvas dessine en secours - */
+
+(async function () {
+  dimensionne();
+  try {
+    await Promise.all([
+      document.fonts.load('400 120px "Anton"'),
+      document.fonts.load('500 24px "JetBrains Mono"'),
+      document.fonts.load('700 32px "JetBrains Mono"'),
+      document.fonts.load('italic 40px "Instrument Serif"')
+    ]);
+    await document.fonts.ready;
+  } catch (e) { /* polices indisponibles : les piles de secours prennent le relais */ }
+
+  pose();
+  bLire.disabled = false;
+  bExp.disabled = false;
+  const dur = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  dit(dur
+    ? 'Prêt. Image d’arrêt affichée — la lecture ne démarre qu’au clic.'
+    : 'Prêt. 20 s, 60 i/s, sans son. L’export dure 20 s en temps réel.');
+})();
+</script>
